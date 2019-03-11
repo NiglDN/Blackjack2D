@@ -1,0 +1,8 @@
+<resources>
+    <string name="game_start">Start</string>
+    <string name="account_name">Profil</string>>
+    <string name="exit">Beenden</string>
+    <string name="stehen">Stehen</string>>
+    <string name="app_name">2DBlackjack</string>
+    <string name="ziehen">Ziehen</string>
+</resources>

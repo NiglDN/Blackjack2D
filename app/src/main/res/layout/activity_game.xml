@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+        android:background="#0B610B"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".GameActivity">
+
+    <HorizontalScrollView
+            android:layout_width="368dp"
+            android:layout_height="127dp"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            android:id="@+id/scrollview_playfield_player" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/scrollview_playfield_bets">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent"
+                      android:orientation="vertical"/>
+    </HorizontalScrollView>
+    <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/button_playfield_stand"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
+            android:text="@string/stehen" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/scrollview_playfield_bets"/>
+    <Button
+            android:text="Ret"
+            android:layout_width="58dp"
+            android:layout_height="40dp"
+            android:id="@+id/button_playfield_reverse"
+            android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"/>
+    <Button
+            android:text="Double Down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/button_playfield_doubled"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp" app:layout_constraintBottom_toTopOf="@+id/button_playfield_split"/>
+    <Button
+            android:text="@string/ziehen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:id="@+id/button_playfield_next"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
+            android:layout_marginBottom="8dp" app:layout_constraintBottom_toTopOf="@+id/button_playfield_stand"/>
+    <TextView
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView_playfield_currentBalance"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="160dp" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent" android:text="Credit"/>
+    <Button
+            android:text="Split"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_playfield_split" android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/button_playfield_deal"/>
+    <Button
+            android:text="DEAL!"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/button_playfield_deal"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="8dp" android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/scrollview_playfield_bets"/>
+    <HorizontalScrollView
+            android:layout_width="368dp"
+            android:layout_height="127dp" android:layout_marginTop="8dp"
+            app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="8dp" android:id="@+id/scrollview_playfield_dealer">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent"
+                      android:orientation="vertical"/>
+    </HorizontalScrollView>
+    <HorizontalScrollView
+            android:layout_width="368dp"
+            android:layout_height="50dp" android:layout_marginBottom="8dp"
+            android:id="@+id/scrollview_playfield_bets"
+            app:layout_constraintBottom_toTopOf="@+id/button_playfield_reverse"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent"
+                      android:orientation="horizontal">
+            <Button
+                    android:text="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:id="@+id/button_playfield_bet1"/>
+            <Button
+                    android:text="5"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:id="@+id/button_playfield_bet5"/>
+            <Button
+                    android:text="25"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:id="@+id/button_playfield_bet25"/>
+            <Button
+                    android:text="100"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:id="@+id/button_playfield_bet100"/>
+            <Button
+                    android:text="500"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" android:id="@+id/button_playfield_bet500"/>
+            <Button
+                    android:text="5000"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/button_playfield_bet5000"
+                    android:layout_weight="1"/>
+            <Button
+                    android:text="ALL IN"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:id="@+id/button_playfield_betAllIn"
+                    android:layout_weight="1"/>
+        </LinearLayout>
+    </HorizontalScrollView>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView_playfield_betTotal" android:layout_marginTop="68dp"
+            app:layout_constraintTop_toBottomOf="@+id/scrollview_playfield_dealer"
+            app:layout_constraintEnd_toStartOf="@+id/button_playfield_doubled" android:layout_marginEnd="32dp"
+            android:text="0"/>
+</android.support.constraint.ConstraintLayout>
