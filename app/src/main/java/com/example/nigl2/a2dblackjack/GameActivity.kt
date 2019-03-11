@@ -8,6 +8,8 @@ import android.widget.Toast
 
 class GameActivity : AppCompatActivity() {
 
+
+    // Moin
     var credit = 5000
     var betTotal = 0
 
@@ -65,7 +67,7 @@ class GameActivity : AppCompatActivity() {
             Log.i("GameActivity", "Limit Erreicht")
             return
         }
-        betTotal = betTotal + bet;
+        betTotal = betTotal + bet
         textView_playfield_betTotal.text = betTotal.toString()
         textView_playfield_currentBalance.text = (credit - betTotal).toString()
     }
