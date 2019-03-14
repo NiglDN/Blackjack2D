@@ -1,28 +1,30 @@
 package com.example.nigl2.a2dblackjack
 
+import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.util.Log
-import android.widget.Button
+import android.view.View
+import android.view.ViewGroup
+import android.widget.*
 import kotlinx.android.synthetic.main.activity_game.*
-import android.widget.Toast
 
 class GameActivity : AppCompatActivity() {
 
-    var credit = 5000
-    var betTotal = 0
+    var credit = 5000                           // credits of player
+    var betTotal = 0                            // credits the player deposited for the game
+    var playerCardScore = mutableListOf<Int>()  // list of all the cards in players hand
+    var dealerCardScore = mutableListOf<Int>()  // list of all the cards in dealers hand
+    var playerScore = 0                         // score of the players current hand
+    var dealerScore = 0                         // score of the dealers current hand
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
 
-        //create Deck and set Credits
-        SingletonCards.createDeck()
-        dealerDraws()
-        dealerDraws()
-        playerDraws()
-        playerDraws()
-        textView_playfield_currentBalance.text = credit.toString()
+        //build the field and reset everything
+        resetField()
 
         //betButtons
         button_playfield_bet1.setOnClickListener {
@@ -55,16 +57,47 @@ class GameActivity : AppCompatActivity() {
         button_playfield_deal.setOnClickListener {
             if (betTotal != 0)
                 Toast.makeText(this, "Bet accepted", Toast.LENGTH_SHORT).show()
+            else
+                return@setOnClickListener
             credit = credit - betTotal
             betTotal = 0
+
             textView_playfield_betTotal.text = betTotal.toString()
             textView_playfield_currentBalance.text = (credit - betTotal).toString()
-            clearField()
+
+            button_playfield_stand.isClickable = true
+            button_playfield_stand.visibility = View.VISIBLE
+
+            button_playfield_next.isClickable = true
+            button_playfield_next.visibility = View.VISIBLE
+
+            button_playfield_deal.isClickable = false
+            button_playfield_deal.visibility = View.INVISIBLE
+
+            //first turn
+            dealerDraws()
+            playerDraws()
+            playerDraws()
+            //first turn
+            //blackjack
+            if (playerCardScore.size == 2 && playerScore == 21){
+                if (dealerScore < 10)
+                    playerWins()
+                else {
+                    dealerDraws()
+                    if (dealerScore == 21)
+                        playerTie()
+                    else
+                        playerWins()
+                }
+            }
         }
 
         button_playfield_next.setOnClickListener {
             playerDraws()
-            checkLoseCondition()
+            //checks if you busted
+            if (playerScore > 21)
+                playerLoses()
         }
 
         button_playfield_stand.setOnClickListener{
@@ -73,7 +106,7 @@ class GameActivity : AppCompatActivity() {
     }
 
     fun bettingCredits (bet: Int){
-        if ((credit - betTotal - bet) < 0){
+        if ((credit - betTotal - bet) < 0) {
             Log.i("GameActivity", "Limit Erreicht")
             return
         }
@@ -83,31 +116,157 @@ class GameActivity : AppCompatActivity() {
     }
 
     fun dealerDraws (){
-        val btn = Button(this)
-        btn.text = SingletonCards.cardDeckList[0].first
-        SingletonCards.cardDeckList.removeAt(0)
-        linearlayout_playfield_dealer.addView(btn)
+        dealerCardScore.add(SingletonCards.cardDeckList[0].second)
+        dealerScore += dealerCardScore[dealerCardScore.lastIndex]
+        textView_playerfield_dealerScore.text = dealerScore.toString()
+
+        linearlayout_playfield_dealer.addView(drawCard())
+        scrollview_playfield_dealer.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
     }
 
     fun playerDraws () {
-        val btn = Button(this)
-        btn.text = SingletonCards.cardDeckList[0].first
-        SingletonCards.cardDeckList.removeAt(0)
-        linearlayout_playfield_player.addView(btn)
+        playerCardScore.add(SingletonCards.cardDeckList[0].second)
+        playerScore += playerCardScore[playerCardScore.lastIndex]
+        textView_playerfield_playerScore.text = playerScore.toString()
+
+
+        linearlayout_playfield_player.addView(drawCard())
+        scrollview_playfield_player.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
     }
 
-    fun clearField(){
+    fun drawCard() : ImageView {
+        var layoutParam = ViewGroup.MarginLayoutParams(222, 323)
+        layoutParam.setMargins(20, 0, 20, 0)
+        var imgview = ImageView(this)
+        imgview.setImageResource(SingletonCards.cardDeckList[0].first)
+        imgview.layoutParams = layoutParam
+        imgview.requestLayout()
+        imgview.setBackgroundColor(Color.WHITE)
+        SingletonCards.cardDeckList.removeAt(0)
+        return imgview
+    }
+
+    fun resetField(){
+        //hide buttons
+        button_playfield_stand.isClickable = false
+        button_playfield_stand.visibility = View.INVISIBLE
+
+        button_playfield_next.isClickable = false
+        button_playfield_next.visibility = View.INVISIBLE
+
+        button_playfield_doubled.isClickable = false
+        button_playfield_doubled.visibility = View.INVISIBLE
+
+        button_playfield_split.isClickable = false
+        button_playfield_split.visibility = View.INVISIBLE
+
+        button_playfield_deal.isClickable = true
+        button_playfield_deal.visibility = View.VISIBLE
+
         linearlayout_playfield_dealer.removeAllViews()
         linearlayout_playfield_player.removeAllViews()
         SingletonCards.cardDeckList.clear()
         SingletonCards.createDeck()
-    }
 
-    fun checkLoseCondition(){
-
+        textView_playfield_currentBalance.text = credit.toString()
+        betTotal = 0
+        textView_playfield_betTotal.text = betTotal.toString()
+        playerScore = 0
+        textView_playerfield_playerScore.text = playerScore.toString()
+        dealerScore = 0
+        textView_playerfield_dealerScore.text = dealerScore.toString()
     }
 
     fun dealerPlays(){
-        clearField()
+        //checks if dealer should draw
+        var drawAgain = true
+        // must draw till at least 16
+        while (drawAgain){
+
+            dealerDraws()
+            if (playerScore > 16) {
+                drawAgain = false
+            }
+        }
+        checkLoseCondition()
     }
+
+    fun checkLoseCondition(){
+        if(dealerScore > 21)
+            playerWins()
+        else if(dealerScore > playerScore){
+            playerLoses()
+        }
+        else if(dealerScore < playerScore){
+            playerWins()
+        }
+        else if(dealerScore == playerScore){
+            playerTie()
+        }
+    }
+
+    fun playerWins() {
+        val builder = AlertDialog.Builder(this)
+        // Set the alert dialog title
+        builder.setTitle("Congratulations")
+        // Display a message on alert dialog
+        builder.setMessage("YOU WON")
+
+        // Set a positive button and its click listener on alert dialog
+        builder.setPositiveButton("OK"){dialog, which ->
+            // Do something when user press the positive button
+            resetField()
+            Toast.makeText(applicationContext,"NICE",Toast.LENGTH_SHORT).show()
+        }
+        // Finally, make the alert dialog using builder
+        val dialog: AlertDialog = builder.create()
+        // Display the alert dialog on app interface
+        dialog.show()
+        credit = 5000
+
+    }
+
+    fun playerLoses() {
+        val builder = AlertDialog.Builder(this)
+        // Set the alert dialog title
+        builder.setTitle("Ohhhh")
+        // Display a message on alert dialog
+        builder.setMessage("YOU LOST")
+
+        // Set a positive button and its click listener on alert dialog
+        builder.setPositiveButton("OK"){dialog, which ->
+            // Do something when user press the positive button
+            resetField()
+            Toast.makeText(applicationContext,"GG EZ",Toast.LENGTH_SHORT).show()
+        }
+        // Finally, make the alert dialog using builder
+        val dialog: AlertDialog = builder.create()
+        // Display the alert dialog on app interface
+        dialog.show()
+        credit = 5000
+
+    }
+
+    fun playerTie() {
+        val builder = AlertDialog.Builder(this)
+        // Set the alert dialog title
+        builder.setTitle("OKAY")
+        // Display a message on alert dialog
+        builder.setMessage("You tied")
+
+        // Set a positive button and its click listener on alert dialog
+        builder.setPositiveButton("OK"){dialog, which ->
+            // Do something when user press the positive button
+            resetField()
+            Toast.makeText(applicationContext,"AVARAGE",Toast.LENGTH_SHORT).show()
+        }
+        // Finally, make the alert dialog using builder
+        val dialog: AlertDialog = builder.create()
+        // Display the alert dialog on app interface
+        dialog.show()
+        credit = 5000
+
+    }
+
+
 }
