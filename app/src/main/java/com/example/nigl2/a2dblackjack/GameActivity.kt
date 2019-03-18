@@ -59,11 +59,6 @@ class GameActivity : AppCompatActivity() {
                 Toast.makeText(this, "Bet accepted", Toast.LENGTH_SHORT).show()
             else
                 return@setOnClickListener
-            credit = credit - betTotal
-            betTotal = 0
-
-            textView_playfield_betTotal.text = betTotal.toString()
-            textView_playfield_currentBalance.text = (credit - betTotal).toString()
 
             button_playfield_stand.isClickable = true
             button_playfield_stand.visibility = View.VISIBLE
@@ -184,7 +179,7 @@ class GameActivity : AppCompatActivity() {
         while (drawAgain){
 
             dealerDraws()
-            if (playerScore > 16) {
+            if (dealerScore > 16) {
                 drawAgain = false
             }
         }
@@ -215,15 +210,14 @@ class GameActivity : AppCompatActivity() {
         // Set a positive button and its click listener on alert dialog
         builder.setPositiveButton("OK"){dialog, which ->
             // Do something when user press the positive button
+            credit += betTotal
+            Toast.makeText(applicationContext,"You won " + betTotal * 2,Toast.LENGTH_SHORT).show()
             resetField()
-            Toast.makeText(applicationContext,"NICE",Toast.LENGTH_SHORT).show()
         }
         // Finally, make the alert dialog using builder
         val dialog: AlertDialog = builder.create()
         // Display the alert dialog on app interface
         dialog.show()
-        credit = 5000
-
     }
 
     fun playerLoses() {
@@ -236,14 +230,14 @@ class GameActivity : AppCompatActivity() {
         // Set a positive button and its click listener on alert dialog
         builder.setPositiveButton("OK"){dialog, which ->
             // Do something when user press the positive button
+            credit -= betTotal
+            Toast.makeText(applicationContext,"You lost $betTotal",Toast.LENGTH_SHORT).show()
             resetField()
-            Toast.makeText(applicationContext,"GG EZ",Toast.LENGTH_SHORT).show()
         }
         // Finally, make the alert dialog using builder
         val dialog: AlertDialog = builder.create()
         // Display the alert dialog on app interface
         dialog.show()
-        credit = 5000
 
     }
 
@@ -257,14 +251,14 @@ class GameActivity : AppCompatActivity() {
         // Set a positive button and its click listener on alert dialog
         builder.setPositiveButton("OK"){dialog, which ->
             // Do something when user press the positive button
+            Toast.makeText(applicationContext,"You get your credit back",Toast.LENGTH_SHORT).show()
             resetField()
-            Toast.makeText(applicationContext,"AVARAGE",Toast.LENGTH_SHORT).show()
         }
         // Finally, make the alert dialog using builder
         val dialog: AlertDialog = builder.create()
         // Display the alert dialog on app interface
         dialog.show()
-        credit = 5000
+
 
     }
 
