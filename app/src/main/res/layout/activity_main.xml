@@ -8,25 +8,36 @@
         tools:context=".MainActivity">
 
     <LinearLayout
+            android:background="@drawable/table"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
         <TextView
+                android:layout_marginTop="80dp"
                 android:layout_gravity="center"
                 android:text="Blackjack2D"
+                android:textSize="40dp"
+                android:textStyle="bold|italic"
+                android:textColor="#FFFFFF"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/textView_title"/>
         <Button
+                android:layout_margin="20dp"
+                style="@style/AppTheme.RoundedCornerMaterialButton"
                 android:layout_gravity="center"
                 android:text="@string/game_start"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/button_game_start"/>
         <Button
+                android:layout_margin="20dp"
+                style="@style/AppTheme.RoundedCornerMaterialButton"
                 android:layout_gravity="center"
                 android:text="@string/account_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" android:id="@+id/button_account"/>
         <Button
+                android:layout_margin="20dp"
+                style="@style/AppTheme.RoundedCornerMaterialButton"
                 android:layout_gravity="center"
                 android:text="@string/exit"
                 android:layout_width="wrap_content"

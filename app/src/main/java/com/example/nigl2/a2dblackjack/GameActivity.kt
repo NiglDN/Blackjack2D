@@ -22,12 +22,6 @@ class GameActivity : AppCompatActivity() {
     var playerAssHands = 0                      // number of player ass
     var dealerAssHands = 0                      // number of player ass
 
-    // vars for split
-    var splitCardScore = mutableListOf<Int>()
-    var splited = false
-    var splitScore = 0
-    var splitAssHands = 0
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
@@ -108,46 +102,6 @@ class GameActivity : AppCompatActivity() {
 
         button_playfield_split.setOnClickListener {
             //checks if it is possible with the current credit
-            if ((credit - betTotal) < betTotal )
-                return@setOnClickListener
-            //splits the hand
-            splitCardScore.add(playerCardScore[1])
-            playerCardScore.removeAt(1)
-            playerScore /= 2
-            splitCardScore = playerCardScore
-            splited = true
-
-            // make splitscrenn
-            linearlayout_playfield_player.removeAllViews()
-            var layoutParam = ViewGroup.MarginLayoutParams(222, 323)
-            layoutParam.setMargins(20, 0, 20, 0)
-            var imgview = ImageView(this)
-            imgview.setImageResource(CardSource[0])
-            imgview.layoutParams = layoutParam
-            imgview.requestLayout()
-            imgview.setBackgroundColor(Color.WHITE)
-            linearlayout_playfield_player.addView(imgview)
-
-            layoutParam = ViewGroup.MarginLayoutParams(222, 323)
-            layoutParam.setMargins(20, 0, 20, 0)
-            imgview = ImageView(this)
-            imgview.setImageResource(R.drawable.back)
-            imgview.layoutParams = layoutParam
-            imgview.requestLayout()
-            imgview.setBackgroundColor(Color.WHITE)
-            linearlayout_playfield_player.addView(imgview)
-
-            layoutParam = ViewGroup.MarginLayoutParams(222, 323)
-            layoutParam.setMargins(20, 0, 20, 0)
-            imgview = ImageView(this)
-            imgview.setImageResource(CardSource[1])
-            imgview.layoutParams = layoutParam
-            imgview.requestLayout()
-            imgview.setBackgroundColor(Color.WHITE)
-            linearlayout_playfield_player.addView(imgview)
-
-            scrollview_playfield_player.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
-
             button_playfield_split.isClickable = false
             button_playfield_split.visibility = View.INVISIBLE
         }
@@ -187,25 +141,11 @@ class GameActivity : AppCompatActivity() {
             Log.i("GameActivity", "Limit Erreicht")
             return
         }
-        betTotal = betTotal + bet
+        betTotal += bet
         textView_playfield_betTotal.text = betTotal.toString()
-        textView_playfield_currentBalance.text = (credit - betTotal).toString()
+        textView_playfield_currentBalance.text = "Credits:  " + (credit - betTotal).toString()
     }
 
-    fun splitDraws(){
-        splitCardScore.add(SingletonCards.cardDeckList[0].second)
-        splitScore += splitCardScore[splitCardScore.lastIndex]
-        // checks if hand gets hard
-        if (splitCardScore[splitCardScore.lastIndex] == 11)
-            splitAssHands++
-        if (splitScore > 21 && splitAssHands != 0) {
-            splitScore -= 10
-            splitAssHands--
-        }
-
-        linearlayout_playfield_player.addView(drawCard())
-        scrollview_playfield_player.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
-    }
 
     fun dealerDraws (){
         dealerCardScore.add(SingletonCards.cardDeckList[0].second)
@@ -275,7 +215,7 @@ class GameActivity : AppCompatActivity() {
         SingletonCards.cardDeckList.clear()
         SingletonCards.createDeck()
 
-        textView_playfield_currentBalance.text = credit.toString()
+        textView_playfield_currentBalance.text = "Credits:  " + credit.toString()
         betTotal = 0
         textView_playfield_betTotal.text = betTotal.toString()
         playerScore = 0
@@ -286,7 +226,6 @@ class GameActivity : AppCompatActivity() {
         dealerAssHands = 0
         playerCardScore.clear()
         dealerCardScore.clear()
-        CardSource.clear()
     }
 
     fun dealerPlays(){
