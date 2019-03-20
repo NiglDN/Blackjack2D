@@ -16,8 +16,17 @@ class GameActivity : AppCompatActivity() {
     var betTotal = 0                            // credits the player deposited for the game
     var playerCardScore = mutableListOf<Int>()  // list of all the cards in players hand
     var dealerCardScore = mutableListOf<Int>()  // list of all the cards in dealers hand
+    var CardSource = mutableListOf<Int>()
     var playerScore = 0                         // score of the players current hand
     var dealerScore = 0                         // score of the dealers current hand
+    var playerAssHands = 0                      // number of player ass
+    var dealerAssHands = 0                      // number of player ass
+
+    // vars for split
+    var splitCardScore = mutableListOf<Int>()
+    var splited = false
+    var splitScore = 0
+    var splitAssHands = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,13 +78,16 @@ class GameActivity : AppCompatActivity() {
             button_playfield_deal.isClickable = false
             button_playfield_deal.visibility = View.INVISIBLE
 
+            button_playfield_doubled.isClickable = true
+            button_playfield_doubled.visibility = View.VISIBLE
+
             //first turn
+            playerDraws()
+            playerDraws()
             dealerDraws()
-            playerDraws()
-            playerDraws()
             //first turn
             //blackjack
-            if (playerCardScore.size == 2 && playerScore == 21){
+            if (playerScore == 21){
                 if (dealerScore < 10)
                     playerWins()
                 else {
@@ -86,10 +98,66 @@ class GameActivity : AppCompatActivity() {
                         playerWins()
                 }
             }
+
+            //allow split
+           // if(playerCardScore[0] == playerCardScore[1]){
+                button_playfield_split.isClickable = true
+                button_playfield_split.visibility = View.VISIBLE
+            //}
+        }
+
+        button_playfield_split.setOnClickListener {
+            //checks if it is possible with the current credit
+            if ((credit - betTotal) < betTotal )
+                return@setOnClickListener
+            //splits the hand
+            splitCardScore.add(playerCardScore[1])
+            playerCardScore.removeAt(1)
+            playerScore /= 2
+            splitCardScore = playerCardScore
+            splited = true
+
+            // make splitscrenn
+            linearlayout_playfield_player.removeAllViews()
+            var layoutParam = ViewGroup.MarginLayoutParams(222, 323)
+            layoutParam.setMargins(20, 0, 20, 0)
+            var imgview = ImageView(this)
+            imgview.setImageResource(CardSource[0])
+            imgview.layoutParams = layoutParam
+            imgview.requestLayout()
+            imgview.setBackgroundColor(Color.WHITE)
+            linearlayout_playfield_player.addView(imgview)
+
+            layoutParam = ViewGroup.MarginLayoutParams(222, 323)
+            layoutParam.setMargins(20, 0, 20, 0)
+            imgview = ImageView(this)
+            imgview.setImageResource(R.drawable.back)
+            imgview.layoutParams = layoutParam
+            imgview.requestLayout()
+            imgview.setBackgroundColor(Color.WHITE)
+            linearlayout_playfield_player.addView(imgview)
+
+            layoutParam = ViewGroup.MarginLayoutParams(222, 323)
+            layoutParam.setMargins(20, 0, 20, 0)
+            imgview = ImageView(this)
+            imgview.setImageResource(CardSource[1])
+            imgview.layoutParams = layoutParam
+            imgview.requestLayout()
+            imgview.setBackgroundColor(Color.WHITE)
+            linearlayout_playfield_player.addView(imgview)
+
+            scrollview_playfield_player.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+
+            button_playfield_split.isClickable = false
+            button_playfield_split.visibility = View.INVISIBLE
         }
 
         button_playfield_next.setOnClickListener {
             playerDraws()
+            button_playfield_split.isClickable = false
+            button_playfield_split.visibility = View.INVISIBLE
+            button_playfield_doubled.isClickable = false
+            button_playfield_doubled.visibility = View.INVISIBLE
             //checks if you busted
             if (playerScore > 21)
                 playerLoses()
@@ -97,6 +165,20 @@ class GameActivity : AppCompatActivity() {
 
         button_playfield_stand.setOnClickListener{
             dealerPlays()
+        }
+
+        button_playfield_doubled.setOnClickListener {
+            //checks if it is possible with the current credit
+            if ((credit - betTotal) < betTotal )
+                return@setOnClickListener
+            bettingCredits(betTotal)
+            playerDraws()
+            //checks if you busted
+            if (playerScore > 21)
+                playerLoses()
+            else {
+                dealerPlays()
+            }
         }
     }
 
@@ -110,9 +192,31 @@ class GameActivity : AppCompatActivity() {
         textView_playfield_currentBalance.text = (credit - betTotal).toString()
     }
 
+    fun splitDraws(){
+        splitCardScore.add(SingletonCards.cardDeckList[0].second)
+        splitScore += splitCardScore[splitCardScore.lastIndex]
+        // checks if hand gets hard
+        if (splitCardScore[splitCardScore.lastIndex] == 11)
+            splitAssHands++
+        if (splitScore > 21 && splitAssHands != 0) {
+            splitScore -= 10
+            splitAssHands--
+        }
+
+        linearlayout_playfield_player.addView(drawCard())
+        scrollview_playfield_player.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+    }
+
     fun dealerDraws (){
         dealerCardScore.add(SingletonCards.cardDeckList[0].second)
         dealerScore += dealerCardScore[dealerCardScore.lastIndex]
+        // checks if hand gets hard
+        if (dealerCardScore[dealerCardScore.lastIndex] == 11)
+            dealerAssHands++
+        if (dealerScore > 21 && dealerAssHands != 0) {
+            dealerScore -= 10
+            dealerAssHands--
+        }
         textView_playerfield_dealerScore.text = dealerScore.toString()
 
         linearlayout_playfield_dealer.addView(drawCard())
@@ -121,7 +225,15 @@ class GameActivity : AppCompatActivity() {
 
     fun playerDraws () {
         playerCardScore.add(SingletonCards.cardDeckList[0].second)
+        CardSource.add(SingletonCards.cardDeckList[0].first)
         playerScore += playerCardScore[playerCardScore.lastIndex]
+        // checks if hand gets hard
+        if (playerCardScore[playerCardScore.lastIndex] == 11)
+            playerAssHands++
+        if (playerScore > 21 && playerAssHands != 0){
+            playerScore -= 10
+            playerAssHands--
+        }
         textView_playerfield_playerScore.text = playerScore.toString()
 
 
@@ -170,6 +282,11 @@ class GameActivity : AppCompatActivity() {
         textView_playerfield_playerScore.text = playerScore.toString()
         dealerScore = 0
         textView_playerfield_dealerScore.text = dealerScore.toString()
+        playerAssHands = 0
+        dealerAssHands = 0
+        playerCardScore.clear()
+        dealerCardScore.clear()
+        CardSource.clear()
     }
 
     fun dealerPlays(){
