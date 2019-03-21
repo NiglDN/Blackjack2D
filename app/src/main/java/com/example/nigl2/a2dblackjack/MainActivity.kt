@@ -13,6 +13,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         SingletonCards.createDeck()
 
+        val myPreference = MyPreference(this)
+        var loginCount = myPreference.getLoginCount()
+        loginCount++
+        myPreference.setLoginCount(loginCount)
+        
+
         button_game_start.setOnClickListener {
             val intent = Intent(this, GameActivity::class.java)
             startActivity(intent)

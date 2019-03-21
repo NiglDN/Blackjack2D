@@ -16,7 +16,6 @@ class GameActivity : AppCompatActivity() {
     var betTotal = 0                            // credits the player deposited for the game
     var playerCardScore = mutableListOf<Int>()  // list of all the cards in players hand
     var dealerCardScore = mutableListOf<Int>()  // list of all the cards in dealers hand
-    var CardSource = mutableListOf<Int>()
     var playerScore = 0                         // score of the players current hand
     var dealerScore = 0                         // score of the dealers current hand
     var playerAssHands = 0                      // number of player ass
@@ -165,7 +164,6 @@ class GameActivity : AppCompatActivity() {
 
     fun playerDraws () {
         playerCardScore.add(SingletonCards.cardDeckList[0].second)
-        CardSource.add(SingletonCards.cardDeckList[0].first)
         playerScore += playerCardScore[playerCardScore.lastIndex]
         // checks if hand gets hard
         if (playerCardScore[playerCardScore.lastIndex] == 11)
