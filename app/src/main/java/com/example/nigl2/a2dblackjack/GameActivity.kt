@@ -1,17 +1,14 @@
 package com.example.nigl2.a2dblackjack
 
+import android.content.Intent
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
 import android.support.v7.app.AlertDialog
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import kotlinx.android.synthetic.main.activity_game.*
-import java.util.*
-import kotlin.concurrent.schedule
 
 
 class GameActivity : AppCompatActivity() {
@@ -25,25 +22,31 @@ class GameActivity : AppCompatActivity() {
     private var playerAssHands = 0                      // number of player ass
     private var dealerAssHands = 0                      // number of player ass
     private var insurancemoney = 0                      // insurance money
+    private var afterBet = false
 
+
+    override fun onResume() {
+        super.onResume()
+        if(!afterBet){
+            resetField()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
         val myPreference = MyPreference(this)
+
         //build the field and reset everything
         resetField()
 
         //betButtons
-        button_playfield_bet1.setOnClickListener {
-            bettingCredits(1)
+        button_playfield_bet10.setOnClickListener {
+            bettingCredits(10)
         }
-        button_playfield_bet5.setOnClickListener {
-            bettingCredits(5)
-        }
-        button_playfield_bet25.setOnClickListener {
-            bettingCredits(25)
+        button_playfield_bet50.setOnClickListener {
+            bettingCredits(50)
         }
         button_playfield_bet100.setOnClickListener {
             bettingCredits(100)
@@ -58,11 +61,10 @@ class GameActivity : AppCompatActivity() {
             bettingCredits(credit)
         }
         button_playfield_reverse.setOnClickListener {
-            if (betTotal != 0){
-                resetField()
-            } else {
+            if (betTotal == 0 || afterBet)
                 finish()
-            }
+             else
+                resetField()
         }
 
         // actionButtons
@@ -90,15 +92,11 @@ class GameActivity : AppCompatActivity() {
             }
 
             //buttons for bet disappear
+            button_playfield_bet10.isClickable = false
+            button_playfield_bet10.visibility = View.INVISIBLE
 
-            button_playfield_bet1.isClickable = false
-            button_playfield_bet1.visibility = View.INVISIBLE
-
-            button_playfield_bet5.isClickable = false
-            button_playfield_bet5.visibility = View.INVISIBLE
-
-            button_playfield_bet25.isClickable = false
-            button_playfield_bet25.visibility = View.INVISIBLE
+            button_playfield_bet50.isClickable = false
+            button_playfield_bet50.visibility = View.INVISIBLE
 
             button_playfield_bet100.isClickable = false
             button_playfield_bet100.visibility = View.INVISIBLE
@@ -111,6 +109,8 @@ class GameActivity : AppCompatActivity() {
 
             button_playfield_betAllIn.isClickable = false
             button_playfield_betAllIn.visibility = View.INVISIBLE
+
+            afterBet = true
             //first turn
 
             playerDraws()
@@ -226,15 +226,12 @@ class GameActivity : AppCompatActivity() {
         button_playfield_deal.isClickable = true
         button_playfield_deal.visibility = View.VISIBLE
 
-        // jetons reappear
-        button_playfield_bet1.isClickable = true
-        button_playfield_bet1.visibility = View.VISIBLE
+        // buttons reappear
+        button_playfield_bet10.isClickable = true
+        button_playfield_bet10.visibility = View.VISIBLE
 
-        button_playfield_bet5.isClickable = true
-        button_playfield_bet5.visibility = View.VISIBLE
-
-        button_playfield_bet25.isClickable = true
-        button_playfield_bet25.visibility = View.VISIBLE
+        button_playfield_bet50.isClickable = true
+        button_playfield_bet50.visibility = View.VISIBLE
 
         button_playfield_bet100.isClickable = true
         button_playfield_bet100.visibility = View.VISIBLE
@@ -262,11 +259,25 @@ class GameActivity : AppCompatActivity() {
         playerCardScore.clear()
         dealerCardScore.clear()
         insurancemoney = 0
+        afterBet = false
 
         textView_playfield_currentBalance.text = "Credits:  " + credit.toString()
         textView_playfield_betTotal.text = betTotal.toString()
         textView_playerfield_playerScore.text = playerScore.toString()
         textView_playerfield_dealerScore.text = dealerScore.toString()
+        //checks if you need credits
+        if (credit == 0){
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Pleite")
+            builder.setMessage("Du hast keine Credits mehr! \n Du kannst ein kurzes Werbevideo schauen um Credits zu bekommen")
+            builder.setPositiveButton("Credits bekommen (1000)"){dialog, which ->
+                startActivity(Intent(this, AdvertismentActivity::class.java))
+            }
+            builder.setNegativeButton("Nein"){dialog, which -> }
+            builder.setCancelable(false)
+            val dialog: AlertDialog = builder.create()
+            dialog.show()
+        }
     }
 
     //call this when its the dealers turn
@@ -328,7 +339,8 @@ class GameActivity : AppCompatActivity() {
         builder.setTitle("Schade")
         builder.setMessage("Du hast verloren \n Spieler Hand: $playerScore \n Dealer Hand: $dealerScore")
         builder.setPositiveButton("OK"){dialog, which ->
-            credit += (insurancemoney * 3)
+            if (dealerScore == 21 && dealerCardScore.size == 2)
+                credit += (insurancemoney * 3)
             myPreference.setCredits(credit)
             myPreference.setLoseCount(myPreference.getLoseCount() + 1)
             myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal)
@@ -367,7 +379,7 @@ class GameActivity : AppCompatActivity() {
         else if (dealerScore == 11 && playerScore == 21) {
             val builder = AlertDialog.Builder(this)
             builder.setTitle("Even Money?")
-            builder.setMessage("Dealer hat ein Ass, willst abbrechen und den doppelten Einsatz zurückbekommen (stat um den x2.5 Gewinn zu spielen)")
+            builder.setMessage("Dealer hat ein Ass, willst abbrechen und den doppelten Einsatz zurückbekommen (statt um den x2.5 Gewinn zu spielen)")
             builder.setPositiveButton("OK") { dialog, which ->
                 credit += (betTotal * 2)
                 Toast.makeText(applicationContext, "Du hast " + betTotal * 2 + " gewonnen", Toast.LENGTH_SHORT).show()

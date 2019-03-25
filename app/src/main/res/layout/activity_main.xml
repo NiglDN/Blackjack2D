@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
+        android:background="@drawable/table"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
@@ -7,7 +8,6 @@
         tools:context=".MainActivity">
 
     <LinearLayout
-            android:background="#0B610B"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -22,6 +22,7 @@
                 android:layout_height="wrap_content" android:id="@+id/textView_title"/>
         <Button
                 android:layout_margin="20dp"
+                android:layout_marginTop="40dp"
                 style="@style/AppTheme.RoundedCornerMaterialButton"
                 android:layout_gravity="center"
                 android:text="@string/game_start"
@@ -31,17 +32,16 @@
                 android:layout_margin="20dp"
                 style="@style/AppTheme.RoundedCornerMaterialButton"
                 android:layout_gravity="center"
-                android:text="Shop"
+                android:text="@string/statistics"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:id="@+id/button_shop"/>
+                android:layout_height="wrap_content" android:id="@+id/button_statistics"/>
         <Button
                 android:layout_margin="20dp"
                 style="@style/AppTheme.RoundedCornerMaterialButton"
                 android:layout_gravity="center"
-                android:text="@string/statistics"
+                android:text="Optionen"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:id="@+id/button_statistics"/>
-
+                android:layout_height="wrap_content" android:id="@+id/button_options"/>
         <Button
                 android:layout_margin="20dp"
                 style="@style/AppTheme.RoundedCornerMaterialButton"

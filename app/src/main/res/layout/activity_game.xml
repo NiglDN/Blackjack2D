@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
-        android:background="#0B610B"
+        android:background="@drawable/table"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -85,6 +85,7 @@
                       android:paddingLeft="60dp"/>
     </HorizontalScrollView>
     <HorizontalScrollView
+            android:scrollbars="none"
             android:layout_width="368dp"
             android:layout_height="50dp" android:layout_marginBottom="8dp"
             android:layout_marginLeft="20dp"
@@ -95,34 +96,56 @@
         <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent"
                       android:orientation="horizontal">
             <Button
-                    android:text="1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:id="@+id/button_playfield_bet1"/>
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:text="10"
+                    android:textColor="#FFF"
+                    android:background="@drawable/redchip"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp" android:id="@+id/button_playfield_bet10"/>
             <Button
-                    android:text="5"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/button_playfield_bet5"/>
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:text="50"
+                    android:textColor="#FFF"
+                    android:background="@drawable/bluechip"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp" android:id="@+id/button_playfield_bet50"/>
             <Button
-                    android:text="25"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/button_playfield_bet25"/>
-            <Button
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
                     android:text="100"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/button_playfield_bet100"/>
+                    android:textColor="#FFF"
+                    android:background="@drawable/lightbluechip"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp" android:id="@+id/button_playfield_bet100"/>
             <Button
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
                     android:text="500"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:id="@+id/button_playfield_bet500"/>
+                    android:background="@drawable/lightred"
+                    android:textColor="#FFF"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp" android:id="@+id/button_playfield_bet500"/>
             <Button
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
                     android:text="5000"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:id="@+id/button_playfield_bet5000"
+                    android:background="@drawable/purple"
+                    android:textColor="#FFF"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp" android:id="@+id/button_playfield_bet5000"
                     android:layout_weight="1"/>
             <Button
+                    android:padding="1dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
                     android:text="ALL IN"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" android:id="@+id/button_playfield_betAllIn"
+                    android:textSize="10dp"
+                    android:textColor="#5E2028"
+                    android:background="@drawable/allinchip"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp" android:id="@+id/button_playfield_betAllIn"
                     android:layout_weight="1"/>
         </LinearLayout>
     </HorizontalScrollView>

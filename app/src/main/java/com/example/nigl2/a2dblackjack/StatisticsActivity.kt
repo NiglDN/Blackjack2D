@@ -23,8 +23,8 @@ class StatisticsActivity : AppCompatActivity() {
 
         button_stats_reset.setOnClickListener {
             val builder = AlertDialog.Builder(this)
-            builder.setTitle("Zurücksetzten")
-            builder.setMessage("Willst du alles zurücksetzten? (Du fängst wieder mit 5000 Credits an)")
+            builder.setTitle("Zurücksetzen?")
+            builder.setMessage("Willst du alles zurücksetzen? (Du fängst wieder mit 5000 Credits an)")
             builder.setPositiveButton("OK"){dialog, which ->
                 resetStats()
                 loadStats()

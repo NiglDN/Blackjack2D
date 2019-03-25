@@ -8,7 +8,7 @@
         tools:context=".StatisticsActivity">
 
     <LinearLayout
-            android:background="#0B610B"
+            android:background="@drawable/table"
             android:padding="30dp"
             android:orientation="vertical"
             android:layout_width="match_parent"
