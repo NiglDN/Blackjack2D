@@ -16,24 +16,22 @@ import kotlin.concurrent.schedule
 
 class GameActivity : AppCompatActivity() {
 
-    var credit = 5000                           // credits of player
-    var betTotal = 0                          // credits the player deposited for the game
-    var playerCardScore = mutableListOf<Int>()  // list of all the cards in players hand
-    var dealerCardScore = mutableListOf<Int>()  // list of all the cards in dealers hand
-    var playerScore = 0                         // score of the players current hand
-    var dealerScore = 0                         // score of the dealers current hand
-    var playerAssHands = 0                      // number of player ass
-    var dealerAssHands = 0                  // number of player ass
-    var evenMoney = false
-    var insurancemoney = 0
-    var insurance = false
+    private var credit = 0                              // credits of player
+    private var betTotal = 0                            // credits the player deposited for the game
+    private var playerCardScore = mutableListOf<Int>()  // list of all the cards in players hand
+    private var dealerCardScore = mutableListOf<Int>()  // list of all the cards in dealers hand
+    private var playerScore = 0                         // score of the players current hand
+    private var dealerScore = 0                         // score of the dealers current hand
+    private var playerAssHands = 0                      // number of player ass
+    private var dealerAssHands = 0                      // number of player ass
+    private var insurancemoney = 0                      // insurance money
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
-
+        val myPreference = MyPreference(this)
         //build the field and reset everything
         resetField()
 
@@ -57,17 +55,20 @@ class GameActivity : AppCompatActivity() {
             bettingCredits(5000)
         }
         button_playfield_betAllIn.setOnClickListener {
-            bettingCredits(credit - betTotal)
+            bettingCredits(credit)
         }
         button_playfield_reverse.setOnClickListener {
-            betTotal = 0
-            bettingCredits(0)
+            if (betTotal != 0){
+                resetField()
+            } else {
+                finish()
+            }
         }
 
         // actionButtons
         button_playfield_deal.setOnClickListener {
             if (betTotal != 0)
-                Toast.makeText(this, "Bet accepted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Einsatz akzeptiert", Toast.LENGTH_SHORT).show()
             else
                 return@setOnClickListener
 
@@ -80,8 +81,6 @@ class GameActivity : AppCompatActivity() {
             button_playfield_deal.isClickable = false
             button_playfield_deal.visibility = View.INVISIBLE
 
-
-
             if(betTotal < credit) {
                 button_playfield_doubled.isClickable = true
                 button_playfield_doubled.visibility = View.VISIBLE
@@ -90,9 +89,7 @@ class GameActivity : AppCompatActivity() {
                 button_playfield_doubled.visibility = View.INVISIBLE
             }
 
-
-
-            //jetons for bet disappear
+            //buttons for bet disappear
 
             button_playfield_bet1.isClickable = false
             button_playfield_bet1.visibility = View.INVISIBLE
@@ -114,117 +111,25 @@ class GameActivity : AppCompatActivity() {
 
             button_playfield_betAllIn.isClickable = false
             button_playfield_betAllIn.visibility = View.INVISIBLE
-
-
-
             //first turn
 
             playerDraws()
             playerDraws()
             dealerDraws()
 
-            //first turn
             //blackjack
-            if (dealerScore == 11 && playerScore == 21 && credit >= betTotal/2) {
-
-                val builder = AlertDialog.Builder(this)
-                // Set the alert dialog title
-                builder.setTitle("Even Money?")
-                // Display a message on alert dialog
-                builder.setMessage("Dealers open card is an Ace, do you want to take even money on your BlackJack (Winnings would be 2x)" + "\n" + "Cost is Half of your bet: " + betTotal / 2)
-
-                // Set a positive button and its click listener on alert dialog
-                builder.setPositiveButton("YES") { dialog, which ->
-                    // Do something when user press the positive button
-                    insurancemoney = betTotal / 2
-                    credit -= insurancemoney
-                    betTotal += insurancemoney
-                    evenMoney = true
-                    Toast.makeText(applicationContext, "Even Money taken", Toast.LENGTH_SHORT).show()
-                    textView_playfield_betTotal.text = betTotal.toString()
-                    textView_playfield_currentBalance.text = "Credits:  " + (credit - betTotal + insurancemoney).toString()
-                    /*dealerDraws()
-                    checkLoseCondition(insurancemoney, evenMoney = true, insurance = false)
-                    */
-
-                }
-                builder.setNegativeButton("NO") { dialog, which ->
-                    Toast.makeText(applicationContext, "Even Money declined", Toast.LENGTH_SHORT).show()
-                    textView_playfield_betTotal.text = betTotal.toString()
-                    textView_playfield_currentBalance.text = "Credits:  " + (credit - betTotal).toString()
-                   /* dealerDraws()
-                    checkLoseCondition(insurancemoney, evenMoney = false, insurance = false)
-                    */
-                }
-                // Finally, make the alert dialog using builder
-                val dialog: AlertDialog = builder.create()
-                // Display the alert dialog on app interface
-                dialog.show()
-
-            } else if (dealerScore == 11 && playerScore < 21 && credit >= betTotal/2) {
-
-
-                val builder = AlertDialog.Builder(this)
-                // Set the alert dialog title
-                builder.setTitle("Insurance?")
-                // Display a message on alert dialog
-                builder.setMessage("Dealers open card is an Ace, do you want to take Insurance?" + "\n" + "If Dealer has an Blackjack, you get your bet back"+ "\n" + "Cost is Half of your bet: " + betTotal / 2)
-
-                // Set a positive button and its click listener on alert dialog
-                builder.setPositiveButton("YES") { dialog, which ->
-                    // Do something when user press the positive button
-                    insurancemoney = betTotal / 2
-                    credit -= insurancemoney
-                    betTotal+= insurancemoney
-                    insurance = true
-                    Toast.makeText(applicationContext, "Insurance taken", Toast.LENGTH_SHORT).show()
-                    textView_playfield_betTotal.text = betTotal.toString()
-                    textView_playfield_currentBalance.text = "Credits:  " + (credit - betTotal + insurancemoney).toString()
-                    /*dealerDraws()
-                    if (dealerScore == 21) {
-                        checkLoseCondition(insurancemoney, evenMoney = false, insurance = true)
-                    }*/
-
-                }
-                builder.setNegativeButton("NO") { dialog, which ->
-                    Toast.makeText(applicationContext, "Even Money declined", Toast.LENGTH_SHORT).show()
-
-                    textView_playfield_betTotal.text = betTotal.toString()
-                    textView_playfield_currentBalance.text = "Credits:  " + (credit - betTotal).toString()
-                   /* if(dealerScore == 21) {
-                        checkLoseCondition(insurancemoney, evenMoney = false, insurance = false)
-                    } */
-                }
-                // Finally, make the alert dialog using builder
-                val dialog: AlertDialog = builder.create()
-                // Display the alert dialog on app interface
-                dialog.show()
-
-            }
-
-
-        //allow split
-        // if(playerCardScore[0] == playerCardScore[1]){
-        button_playfield_split.isClickable = true
-        button_playfield_split.visibility = View.VISIBLE
-        //}
-    }
-
-        button_playfield_split.setOnClickListener {
-            //checks if it is possible with the current credit
-            button_playfield_split.isClickable = false
-            button_playfield_split.visibility = View.INVISIBLE
+            checkBlackjack()
         }
 
         button_playfield_next.setOnClickListener {
             playerDraws()
-            button_playfield_split.isClickable = false
-            button_playfield_split.visibility = View.INVISIBLE
             button_playfield_doubled.isClickable = false
             button_playfield_doubled.visibility = View.INVISIBLE
             //checks if you busted
-            if (playerScore > 21)
-                playerLoses(insurance)
+            if (playerScore > 21) {
+                playerLoses()
+                myPreference.setBustedCount(myPreference.getBustedCount() + 1)
+            }
         }
 
         button_playfield_stand.setOnClickListener {
@@ -233,32 +138,35 @@ class GameActivity : AppCompatActivity() {
 
         button_playfield_doubled.setOnClickListener {
             //checks if it is possible with the current credit
-            if ((credit - betTotal) < betTotal)
+            if ((credit) < betTotal)
                 return@setOnClickListener
             bettingCredits(betTotal)
             playerDraws()
             //checks if you busted
-            if (playerScore > 21)
-                playerLoses(insurance)
-            else {
+            if (playerScore > 21){
+                playerLoses()
+            myPreference.setBustedCount(myPreference.getBustedCount() + 1)
+            } else {
                 dealerPlays()
             }
         }
     }
 
-    fun bettingCredits(bet: Int) {
-        if ((credit - betTotal - bet) < 0) {
-            Log.i("GameActivity", "Limit Erreicht")
+    // helper function for credits
+    // does not change credit value, just shows and accept with click on deal
+    private fun bettingCredits(bet: Int) {
+        if ((credit - bet) < 0) {
+            Toast.makeText(this, "Nicht genügend Credits", Toast.LENGTH_SHORT).show()
             return
         }
         betTotal += bet
+        credit -= bet
         textView_playfield_betTotal.text = betTotal.toString()
-        textView_playfield_currentBalance.text = "Credits:  " + (credit - betTotal).toString()
+        textView_playfield_currentBalance.text = "Credits: $credit"
     }
 
-
-    fun dealerDraws() {
-
+    //call this when the dealer must draw
+    private fun dealerDraws() {
         dealerCardScore.add(SingletonCards.cardDeckList[0].second)
         dealerScore += dealerCardScore[dealerCardScore.lastIndex]
         // checks if hand gets hard
@@ -269,15 +177,12 @@ class GameActivity : AppCompatActivity() {
             dealerAssHands--
         }
         textView_playerfield_dealerScore.text = dealerScore.toString()
-
             linearlayout_playfield_dealer.addView(drawCard())
             scrollview_playfield_dealer.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
-
-
     }
 
-    fun playerDraws() {
-
+    //call this when the player must draw
+    private fun playerDraws() {
         playerCardScore.add(SingletonCards.cardDeckList[0].second)
         playerScore += playerCardScore[playerCardScore.lastIndex]
         // checks if hand gets hard
@@ -288,16 +193,12 @@ class GameActivity : AppCompatActivity() {
             playerAssHands--
         }
         textView_playerfield_playerScore.text = playerScore.toString()
-
-
                 linearlayout_playfield_player.addView(drawCard())
                 scrollview_playfield_player.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+    }
 
-
-
-
-}
-    fun drawCard() : ImageView {
+    //helper function for drawing cards
+    private fun drawCard() : ImageView {
         var layoutParam = ViewGroup.MarginLayoutParams(222, 323)
         layoutParam.setMargins(20, 0, 20, 0)
         var imgview = ImageView(this)
@@ -309,7 +210,9 @@ class GameActivity : AppCompatActivity() {
         return imgview
     }
 
-    fun resetField(){
+    //resets the whole field
+    private fun resetField(){
+        val myPreference = MyPreference(this)
         //hide buttons
         button_playfield_stand.isClickable = false
         button_playfield_stand.visibility = View.INVISIBLE
@@ -320,13 +223,8 @@ class GameActivity : AppCompatActivity() {
         button_playfield_doubled.isClickable = false
         button_playfield_doubled.visibility = View.INVISIBLE
 
-        button_playfield_split.isClickable = false
-        button_playfield_split.visibility = View.INVISIBLE
-
         button_playfield_deal.isClickable = true
         button_playfield_deal.visibility = View.VISIBLE
-
-
 
         // jetons reappear
         button_playfield_bet1.isClickable = true
@@ -350,192 +248,160 @@ class GameActivity : AppCompatActivity() {
         button_playfield_betAllIn.isClickable = true
         button_playfield_betAllIn.visibility = View.VISIBLE
 
-
         linearlayout_playfield_dealer.removeAllViews()
         linearlayout_playfield_player.removeAllViews()
         SingletonCards.cardDeckList.clear()
         SingletonCards.createDeck()
 
-        textView_playfield_currentBalance.text = "Credits:  " + credit.toString()
+        credit = myPreference.getCredits()
         betTotal = 0
-        textView_playfield_betTotal.text = betTotal.toString()
         playerScore = 0
-        textView_playerfield_playerScore.text = playerScore.toString()
         dealerScore = 0
-        textView_playerfield_dealerScore.text = dealerScore.toString()
         playerAssHands = 0
         dealerAssHands = 0
         playerCardScore.clear()
         dealerCardScore.clear()
-        evenMoney = false
         insurancemoney = 0
-        insurance = false
 
+        textView_playfield_currentBalance.text = "Credits:  " + credit.toString()
+        textView_playfield_betTotal.text = betTotal.toString()
+        textView_playerfield_playerScore.text = playerScore.toString()
+        textView_playerfield_dealerScore.text = dealerScore.toString()
     }
 
-    fun dealerPlays(){
+    //call this when its the dealers turn
+    private fun dealerPlays(){
         //checks if dealer should draw
         var drawAgain = true
         // must draw till at least 16
         while (drawAgain){
-
-
             dealerDraws()
             if (dealerScore > 16) {
                 drawAgain = false
             }
         }
-        checkLoseCondition(evenMoney, insurance)
+        checkLoseCondition()
     }
 
-    fun checkLoseCondition(evenMoney: Boolean, insurance: Boolean){
-        if (dealerScore > 21) {
-            playerWins()
-        }
-        else if(playerScore == dealerScore && playerScore < 21) {
-            playerTie(insurance)
-        }
-        else if(dealerScore == 21 && playerScore == 21 && playerCardScore.size == 2 && dealerCardScore.size == 2 && evenMoney){
-            playerTie(evenMoney)
-        }
-        else if(dealerScore == 21 && playerScore == 21  && playerCardScore.size == 2 && dealerCardScore.size == 2 && !evenMoney){
-            playerTie(evenMoney)
-        } else if(dealerScore == 21 && playerScore == 21 && dealerCardScore.size >2 && playerCardScore.size > 2) {
-            playerTie(insurance)
-        }
-        else if (dealerScore == 21 && dealerCardScore.size == 2 && insurance && playerCardScore.size > 2) {
-            playerLoses(insurance)
-        } else if (dealerScore == 21 && dealerCardScore.size == 2 && !insurance && playerCardScore.size > 2) {
-            playerLoses(insurance)
-        }
-        else if (dealerScore > playerScore && dealerCardScore.size != 2 && playerScore != 2) {
-            playerLoses(insurance)
-        } else if (dealerScore > playerScore && dealerCardScore.size != 2 && playerScore == 2) {
-            playerLoses(insurance)
-        } else if (dealerScore > playerScore && dealerCardScore.size ==2 && playerScore != 2) {
-            playerLoses(insurance)
-        } else if (dealerScore > playerScore && dealerCardScore.size == 2 && playerScore == 2) {
-            playerLoses(insurance)
-        } else if (dealerScore < playerScore && dealerCardScore.size != 2 && playerScore != 2) {
-            playerWins()
-        } else if (dealerScore < playerScore && dealerCardScore.size != 2 && playerScore == 2) {
-            playerWins()
-        } else if (dealerScore < playerScore && dealerCardScore.size ==2 && playerScore != 2) {
-            playerWins()
-        } else if (dealerScore < playerScore && dealerCardScore.size == 2 && playerScore == 2) {
-            playerWins()
-        }
+    //checks if you lost
+    private fun checkLoseCondition(){
+        if (dealerScore > 21)
+            playerWins(2.0)
+        else if (dealerScore == 21 && dealerCardScore.size == 2 && playerCardScore.size > 2)
+            playerLoses()
+        else if (dealerScore == 21 && dealerCardScore.size == 2 && playerCardScore.size == 2 && dealerScore == playerScore)
+            playerTie()
+        else if(playerScore == dealerScore)
+            playerTie()
+        else if(playerScore > dealerScore)
+            playerWins(2.0)
+        else if(playerScore < dealerScore)
+            playerLoses()
+    }
 
-        }
-
-
-    fun playerWins() {
+    // gives money
+    // facotr shows how much you win
+    private fun playerWins(factor: Double) {
+        val myPreference = MyPreference(this)
         val builder = AlertDialog.Builder(this)
-        // Set the alert dialog title
-        builder.setTitle("Congratulations")
-        // Display a message on alert dialog
-        builder.setMessage("YOU WON" +"\n" + "Your Score was: " + playerScore + "\n"+"The Dealers Score was: " + dealerScore +"\n")
-
-
-        // Set a positive button and its click listener on alert dialog
+        builder.setTitle("Glückwunsch")
+        builder.setMessage("Du hast Gewonnen \n Spieler Hand: $playerScore \n Dealer Hand: $dealerScore")
         builder.setPositiveButton("OK") { dialog, which ->
-            // Do something when user press the positive button
-            if (playerScore == 21 && playerCardScore.size == 2) {
-            var blackjacktotal = betTotal * 1.5
-                  credit += blackjacktotal.toInt()
-                builder.setMessage("BLACKJACK")
-                Toast.makeText(applicationContext,"BLACKJACK! You won " + (betTotal + blackjacktotal),Toast.LENGTH_SHORT).show()
-                resetField()
-        } else {
-                credit += betTotal
-                Toast.makeText(applicationContext,"You won " + (betTotal - insurancemoney) * 2,Toast.LENGTH_SHORT).show()
-                resetField()
-        }
-    }
-
-        // Finally, make the alert dialog using builder
-        val dialog: AlertDialog = builder.create()
-        // Display the alert dialog on app interface
-        dialog.show()
-    }
-
-    fun playerLoses(insurance: Boolean) {
-        val builder = AlertDialog.Builder(this)
-        // Set the alert dialog title
-        builder.setTitle("Ohhhh")
-        // Display a message on alert dialog
-        builder.setMessage("YOU LOST" +"\n" + "Your Score was: "+playerScore+ "\n" + "The Dealers Score was: " + dealerScore)
-
-        // Set a positive button and its click listener on alert dialog
-        builder.setPositiveButton("OK"){dialog, which ->
-            // Do something when user press the positive button
-            if (!insurance) {
-
-            Toast.makeText(applicationContext,"You lost $betTotal",Toast.LENGTH_SHORT).show()
+            betTotal = (betTotal * factor).toInt()
+            credit += betTotal
+            myPreference.setCredits(credit)
+            myPreference.setWinCount(myPreference.getWinCount() + 1)
+            if (myPreference.getMostCredits() < betTotal)
+                myPreference.setMostCredits(betTotal)
+            myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal)
+            Toast.makeText(applicationContext,"Du gewinnst $betTotal",Toast.LENGTH_SHORT).show()
             resetField()
-            } else if (insurance && dealerScore==21 && dealerCardScore.size == 2){
-                credit+= insurancemoney
-                Toast.makeText(applicationContext,"You lost but you took insurance, so your balance remains unchanged",Toast.LENGTH_SHORT).show()
-                resetField()
-            }
-            else if (insurance && dealerScore != 21 && dealerCardScore.size <=2){
-                credit-=betTotal
-                Toast.makeText(applicationContext, "You lost your bet and your insurance", Toast.LENGTH_SHORT).show()
-                resetField()
-            } else {
-                credit-=betTotal
-                Toast.makeText(applicationContext, "You lost your bet", Toast.LENGTH_SHORT).show()
-                resetField()
-            }
-
-        }
-        // Finally, make the alert dialog using builder
+         }
+        builder.setCancelable(false)
         val dialog: AlertDialog = builder.create()
-        // Display the alert dialog on app interface
         dialog.show()
-
     }
 
-    fun playerTie(evenMoney: Boolean) {
-        if (evenMoney && dealerCardScore[0] == 11 && dealerScore == 21 && dealerCardScore.size == 2) {
-            val builder = AlertDialog.Builder(this)
-            // Set the alert dialog title
-            builder.setTitle("Even Money")
-            // Display a message on alert dialog
-            builder.setMessage("Congratulations! You tied but you have taken Even Money, you doubled your stake")
-            builder.setPositiveButton("OK") {dialog, which ->
-                Toast.makeText(applicationContext,"You get your bettingstake + 3x " +insurancemoney + " back",Toast.LENGTH_SHORT).show()
-                resetField()
-            }
-            // Finally, make the alert dialog using builder
-            val dialog: AlertDialog = builder.create()
-            // Display the alert dialog on app interface
-            dialog.show()
+    private fun playerLoses() {
+        val myPreference = MyPreference(this)
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Schade")
+        builder.setMessage("Du hast verloren \n Spieler Hand: $playerScore \n Dealer Hand: $dealerScore")
+        builder.setPositiveButton("OK"){dialog, which ->
+            credit += (insurancemoney * 3)
+            myPreference.setCredits(credit)
+            myPreference.setLoseCount(myPreference.getLoseCount() + 1)
+            myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal)
+            Toast.makeText(applicationContext,"Du verlierst " + betTotal,Toast.LENGTH_SHORT).show()
+            resetField()
+        }
+        builder.setCancelable(false)
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
+    }
 
-        } else {
+    private fun playerTie() {
+        val myPreference = MyPreference(this)
             val builder = AlertDialog.Builder(this)
-            // Set the alert dialog title
-            builder.setTitle("OKAY")
-            // Display a message on alert dialog
-            if (playerScore == 21 && dealerCardScore[0] == 11) {
-                builder.setMessage("You tied but you didnt take Even Money!")
-            } else {
-                builder.setMessage("You tied!" + "\n" + "Your Score was: " + playerScore + "\n" + "The Dealers Score was: " + dealerScore)
-            }
-            // Set a positive button and its click listener on alert dialog
+            builder.setTitle("Unentschieden")
+            builder.setMessage("Keiner gewinnt \n Spieler Hand: $playerScore \n Dealer Hand: $dealerScore")
             builder.setPositiveButton("OK") { dialog, which ->
-                // Do something when user press the positive button
-                Toast.makeText(applicationContext, "You get your betting stake back", Toast.LENGTH_SHORT).show()
+                myPreference.setTieCount(myPreference.getTieCount() + 1)
+                Toast.makeText(applicationContext, "Du bekommst deinen Einsatz zurück", Toast.LENGTH_SHORT).show()
                 resetField()
             }
-            // Finally, make the alert dialog using builder
+            builder.setCancelable(false)
             val dialog: AlertDialog = builder.create()
-            // Display the alert dialog on app interface
+            dialog.show()
+    }
+
+    //checks for Blackjack and Insurrance
+    private fun checkBlackjack(){
+        val myPreference = MyPreference(this)
+        // Blackjack
+        if (dealerScore < 11 && playerScore == 21) {
+            myPreference.setBlackJackCount(myPreference.getBlackJackCount() + 1)
+            playerWins(2.5)
+        }
+        //checks even money
+        else if (dealerScore == 11 && playerScore == 21) {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Even Money?")
+            builder.setMessage("Dealer hat ein Ass, willst abbrechen und den doppelten Einsatz zurückbekommen (stat um den x2.5 Gewinn zu spielen)")
+            builder.setPositiveButton("OK") { dialog, which ->
+                credit += (betTotal * 2)
+                Toast.makeText(applicationContext, "Du hast " + betTotal * 2 + " gewonnen", Toast.LENGTH_SHORT).show()
+                textView_playfield_betTotal.text = betTotal.toString()
+                myPreference.setCredits(credit)
+                resetField()
+            }
+            builder.setNegativeButton("Nein") { dialog, which ->
+                Toast.makeText(applicationContext, "Even Money abgelehnt", Toast.LENGTH_SHORT).show()
+                textView_playfield_betTotal.text = betTotal.toString()
+            }
+            builder.setCancelable(false)
+            val dialog: AlertDialog = builder.create()
+            dialog.show()
+            myPreference.setBlackJackCount(myPreference.getBlackJackCount() + 1)
+        }
+        // Insurance
+        else if (dealerScore == 11 && playerScore < 21 && credit >= betTotal/2) {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Versicherung?")
+            builder.setMessage("Dealer hat ein Ass, wollen Sie ihre Hand gegen einen Blackjack des Gegners versichern? \n (Bei Blackjack des Dealers verlieren Sie so nichts) \n Kosten: " + betTotal / 2)
+            builder.setPositiveButton("OK") { dialog, which ->
+                insurancemoney = betTotal / 2
+                credit -= insurancemoney
+                Toast.makeText(applicationContext, "Versichert um $insurancemoney", Toast.LENGTH_SHORT).show()
+                textView_playfield_currentBalance.text = "Credits: $credit"
+            }
+            builder.setNegativeButton("Nein") { dialog, which ->
+                Toast.makeText(applicationContext, "Versicherung abgelehnt", Toast.LENGTH_SHORT).show()
+            }
+            builder.setCancelable(false)
+            val dialog: AlertDialog = builder.create()
             dialog.show()
         }
-
     }
-
-
 }
 
