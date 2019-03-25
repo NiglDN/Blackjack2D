@@ -31,9 +31,17 @@
                 android:layout_margin="20dp"
                 style="@style/AppTheme.RoundedCornerMaterialButton"
                 android:layout_gravity="center"
-                android:text="@string/account_name"
+                android:text="Shop"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:id="@+id/button_account"/>
+                android:layout_height="wrap_content" android:id="@+id/button_shop"/>
+        <Button
+                android:layout_margin="20dp"
+                style="@style/AppTheme.RoundedCornerMaterialButton"
+                android:layout_gravity="center"
+                android:text="@string/statistics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/button_statistics"/>
+
         <Button
                 android:layout_margin="20dp"
                 style="@style/AppTheme.RoundedCornerMaterialButton"
