@@ -3,12 +3,15 @@ package com.example.nigl2.a2dblackjack
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import kotlinx.android.synthetic.main.activity_game.*
+import java.util.*
+import kotlin.concurrent.schedule
 
 
 class GameActivity : AppCompatActivity() {
@@ -135,10 +138,11 @@ class GameActivity : AppCompatActivity() {
                     // Do something when user press the positive button
                     insurancemoney = betTotal / 2
                     credit -= insurancemoney
+                    betTotal += insurancemoney
                     evenMoney = true
                     Toast.makeText(applicationContext, "Even Money taken", Toast.LENGTH_SHORT).show()
                     textView_playfield_betTotal.text = betTotal.toString()
-                    textView_playfield_currentBalance.text = "Credits:  " + (credit - betTotal).toString()
+                    textView_playfield_currentBalance.text = "Credits:  " + (credit - betTotal + insurancemoney).toString()
                     /*dealerDraws()
                     checkLoseCondition(insurancemoney, evenMoney = true, insurance = false)
                     */
@@ -164,17 +168,18 @@ class GameActivity : AppCompatActivity() {
                 // Set the alert dialog title
                 builder.setTitle("Insurance?")
                 // Display a message on alert dialog
-                builder.setMessage("Dealers open card is an Ace, do you want to take Insurance?" + "\n" + "If Dealer has an Blackjack, you get your bet back"+ "Cost is Half of your bet: " + betTotal / 2)
+                builder.setMessage("Dealers open card is an Ace, do you want to take Insurance?" + "\n" + "If Dealer has an Blackjack, you get your bet back"+ "\n" + "Cost is Half of your bet: " + betTotal / 2)
 
                 // Set a positive button and its click listener on alert dialog
                 builder.setPositiveButton("YES") { dialog, which ->
                     // Do something when user press the positive button
                     insurancemoney = betTotal / 2
                     credit -= insurancemoney
+                    betTotal+= insurancemoney
                     insurance = true
                     Toast.makeText(applicationContext, "Insurance taken", Toast.LENGTH_SHORT).show()
                     textView_playfield_betTotal.text = betTotal.toString()
-                    textView_playfield_currentBalance.text = "Credits:  " + (credit - betTotal).toString()
+                    textView_playfield_currentBalance.text = "Credits:  " + (credit - betTotal + insurancemoney).toString()
                     /*dealerDraws()
                     if (dealerScore == 21) {
                         checkLoseCondition(insurancemoney, evenMoney = false, insurance = true)
@@ -253,6 +258,7 @@ class GameActivity : AppCompatActivity() {
 
 
     fun dealerDraws() {
+
         dealerCardScore.add(SingletonCards.cardDeckList[0].second)
         dealerScore += dealerCardScore[dealerCardScore.lastIndex]
         // checks if hand gets hard
@@ -264,8 +270,10 @@ class GameActivity : AppCompatActivity() {
         }
         textView_playerfield_dealerScore.text = dealerScore.toString()
 
-        linearlayout_playfield_dealer.addView(drawCard())
-        scrollview_playfield_dealer.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+            linearlayout_playfield_dealer.addView(drawCard())
+            scrollview_playfield_dealer.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+
+
     }
 
     fun playerDraws() {
@@ -282,8 +290,11 @@ class GameActivity : AppCompatActivity() {
         textView_playerfield_playerScore.text = playerScore.toString()
 
 
-        linearlayout_playfield_player.addView(drawCard())
-        scrollview_playfield_player.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+                linearlayout_playfield_player.addView(drawCard())
+                scrollview_playfield_player.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+
+
+
 
 }
     fun drawCard() : ImageView {
@@ -374,10 +385,10 @@ class GameActivity : AppCompatActivity() {
                 drawAgain = false
             }
         }
-        checkLoseCondition(insurancemoney, evenMoney, insurance)
+        checkLoseCondition(evenMoney, insurance)
     }
 
-    fun checkLoseCondition(insurancemoney: Int, evenMoney: Boolean, insurance: Boolean){
+    fun checkLoseCondition(evenMoney: Boolean, insurance: Boolean){
         if (dealerScore > 21) {
             playerWins()
         }
@@ -385,9 +396,11 @@ class GameActivity : AppCompatActivity() {
             playerTie(insurance)
         }
         else if(dealerScore == 21 && playerScore == 21 && playerCardScore.size == 2 && dealerCardScore.size == 2 && evenMoney){
-            playerTie(insurance)
+            playerTie(evenMoney)
         }
         else if(dealerScore == 21 && playerScore == 21  && playerCardScore.size == 2 && dealerCardScore.size == 2 && !evenMoney){
+            playerTie(evenMoney)
+        } else if(dealerScore == 21 && playerScore == 21 && dealerCardScore.size >2 && playerCardScore.size > 2) {
             playerTie(insurance)
         }
         else if (dealerScore == 21 && dealerCardScore.size == 2 && insurance && playerCardScore.size > 2) {
@@ -431,11 +444,11 @@ class GameActivity : AppCompatActivity() {
             var blackjacktotal = betTotal * 1.5
                   credit += blackjacktotal.toInt()
                 builder.setMessage("BLACKJACK")
-                Toast.makeText(applicationContext,"BLACKJACK! You won " + blackjacktotal,Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext,"BLACKJACK! You won " + (betTotal + blackjacktotal),Toast.LENGTH_SHORT).show()
                 resetField()
         } else {
                 credit += betTotal
-                Toast.makeText(applicationContext,"You won " + betTotal * 2,Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext,"You won " + (betTotal - insurancemoney) * 2,Toast.LENGTH_SHORT).show()
                 resetField()
         }
     }
@@ -457,11 +470,21 @@ class GameActivity : AppCompatActivity() {
         builder.setPositiveButton("OK"){dialog, which ->
             // Do something when user press the positive button
             if (!insurance) {
-            credit -= betTotal
+
             Toast.makeText(applicationContext,"You lost $betTotal",Toast.LENGTH_SHORT).show()
             resetField()
-            } else {
+            } else if (insurance && dealerScore==21 && dealerCardScore.size == 2){
+                credit+= insurancemoney
                 Toast.makeText(applicationContext,"You lost but you took insurance, so your balance remains unchanged",Toast.LENGTH_SHORT).show()
+                resetField()
+            }
+            else if (insurance && dealerScore != 21 && dealerCardScore.size <=2){
+                credit-=betTotal
+                Toast.makeText(applicationContext, "You lost your bet and your insurance", Toast.LENGTH_SHORT).show()
+                resetField()
+            } else {
+                credit-=betTotal
+                Toast.makeText(applicationContext, "You lost your bet", Toast.LENGTH_SHORT).show()
                 resetField()
             }
 
@@ -474,14 +497,14 @@ class GameActivity : AppCompatActivity() {
     }
 
     fun playerTie(evenMoney: Boolean) {
-        if (evenMoney) {
+        if (evenMoney && dealerCardScore[0] == 11 && dealerScore == 21 && dealerCardScore.size == 2) {
             val builder = AlertDialog.Builder(this)
             // Set the alert dialog title
             builder.setTitle("Even Money")
             // Display a message on alert dialog
             builder.setMessage("Congratulations! You tied but you have taken Even Money, you doubled your stake")
             builder.setPositiveButton("OK") {dialog, which ->
-                Toast.makeText(applicationContext,"You get your credit + 3x " +insurancemoney + " back",Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext,"You get your bettingstake + 3x " +insurancemoney + " back",Toast.LENGTH_SHORT).show()
                 resetField()
             }
             // Finally, make the alert dialog using builder
@@ -502,7 +525,7 @@ class GameActivity : AppCompatActivity() {
             // Set a positive button and its click listener on alert dialog
             builder.setPositiveButton("OK") { dialog, which ->
                 // Do something when user press the positive button
-                Toast.makeText(applicationContext, "You get your credit back", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "You get your betting stake back", Toast.LENGTH_SHORT).show()
                 resetField()
             }
             // Finally, make the alert dialog using builder
