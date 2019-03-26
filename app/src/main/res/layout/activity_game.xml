@@ -12,11 +12,10 @@
             android:layout_width="368dp"
             android:layout_height="127dp"
             android:id="@+id/scrollview_playfield_player"
-            android:layout_marginTop="8dp"
             android:scrollbars="none"
-            app:layout_constraintTop_toBottomOf="@+id/scrollview_playfield_dealer" android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toTopOf="@+id/button_playfield_next"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp">
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="24dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="24dp"
+            android:layout_marginBottom="150dp" app:layout_constraintBottom_toTopOf="@+id/scrollview_playfield_bets">
         <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent"
                       android:paddingRight="150dp"
                       android:paddingLeft="60dp"
@@ -26,8 +25,8 @@
             android:background="@drawable/button_border"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/button_playfield_stand"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
-            android:text="@string/stehen" android:layout_marginBottom="8dp"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"
+            android:text="@string/stehen" android:layout_marginBottom="24dp"
             app:layout_constraintBottom_toTopOf="@+id/scrollview_playfield_bets"/>
     <ImageButton
             android:src="@drawable/back_button"
@@ -37,8 +36,8 @@
             android:layout_width="58dp"
             android:layout_height="40dp"
             android:id="@+id/button_playfield_reverse"
-            android:layout_marginBottom="8dp" app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp" app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"
     />
     <Button
             android:background="@drawable/button_border"
@@ -46,15 +45,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/button_playfield_doubled"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp" android:layout_marginBottom="8dp"
+            android:layout_marginEnd="16dp" android:layout_marginBottom="16dp"
             app:layout_constraintBottom_toTopOf="@+id/button_playfield_deal"/>
     <Button
             android:background="@drawable/button_border"
             android:text="@string/ziehen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:id="@+id/button_playfield_next"
-            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
-            android:layout_marginBottom="8dp" app:layout_constraintBottom_toTopOf="@+id/button_playfield_stand"/>
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"
+            android:layout_marginBottom="16dp" app:layout_constraintBottom_toTopOf="@+id/button_playfield_stand"/>
     <TextView
             android:textColor="#FFFFFF"
             android:layout_gravity="center"
@@ -63,8 +62,9 @@
             android:textSize="25dp"
             android:id="@+id/textView_playfield_currentBalance"
             app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="56dp" android:layout_marginBottom="8dp"
-            app:layout_constraintBottom_toBottomOf="parent" android:text="Credit"/>
+            android:layout_marginStart="24dp" android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginEnd="24dp"
+            app:layout_constraintEnd_toStartOf="@+id/button_playfield_reverse"/>
     <Button
             android:background="@drawable/button_border"
             android:text="DEAL!"
@@ -72,27 +72,29 @@
             android:layout_height="wrap_content"
             android:id="@+id/button_playfield_deal"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp" android:layout_marginBottom="8dp"
+            android:layout_marginEnd="16dp" android:layout_marginBottom="24dp"
             app:layout_constraintBottom_toTopOf="@+id/scrollview_playfield_bets"/>
     <HorizontalScrollView
             android:scrollbars="none"
             android:layout_width="368dp"
-            android:layout_height="127dp" android:layout_marginTop="8dp"
+            android:layout_height="127dp" android:layout_marginTop="40dp"
             app:layout_constraintTop_toTopOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp" android:id="@+id/scrollview_playfield_dealer">
+            android:layout_marginEnd="24dp" android:id="@+id/scrollview_playfield_dealer"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="24dp">
         <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent"
-                      android:orientation="horizontal" android:id="@+id/linearlayout_playfield_dealer" android:paddingRight="150dp"
+                      android:orientation="horizontal" android:id="@+id/linearlayout_playfield_dealer"
+                      android:paddingRight="150dp"
                       android:paddingLeft="60dp"/>
     </HorizontalScrollView>
     <HorizontalScrollView
             android:scrollbars="none"
             android:layout_width="368dp"
-            android:layout_height="50dp" android:layout_marginBottom="8dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_height="50dp"
             android:id="@+id/scrollview_playfield_bets"
-            app:layout_constraintBottom_toTopOf="@+id/button_playfield_reverse"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp">
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="24dp" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="24dp" android:layout_marginBottom="24dp"
+            app:layout_constraintBottom_toTopOf="@+id/textView_playfield_currentBalance">
         <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent"
                       android:orientation="horizontal">
             <Button
@@ -150,32 +152,39 @@
         </LinearLayout>
     </HorizontalScrollView>
     <TextView
-            android:textColor="#FFFF"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:textColor="#C3C3C3"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:id="@+id/textView_playfield_betTotal"
-            android:layout_marginTop="8dp"
-            android:textSize="25dp"
-            app:layout_constraintTop_toBottomOf="@+id/scrollview_playfield_player" android:layout_marginBottom="8dp"
+            android:textSize="18dp"
+            android:gravity="center"
+            android:background="@drawable/betfield"
+            android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toTopOf="@+id/scrollview_playfield_bets"
-            app:layout_constraintStart_toEndOf="@+id/button_playfield_next" android:layout_marginStart="8dp"/>
+            android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/scrollview_playfield_player"
+            android:layout_marginEnd="8dp" app:layout_constraintEnd_toEndOf="parent" android:layout_marginStart="8dp"
+            app:layout_constraintStart_toStartOf="parent"/>
     <TextView
-            android:textColor="#FFFF"
-            android:textSize="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:textSize="14dp"
+            android:background="@drawable/score"
+            android:gravity="center"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:id="@+id/textView_playerfield_playerScore"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="32dp"
-            app:layout_constraintStart_toEndOf="@+id/scrollview_playfield_player" android:layout_marginStart="8dp"
-            android:layout_marginBottom="32dp" app:layout_constraintBottom_toTopOf="@+id/button_playfield_doubled"
-            app:layout_constraintHorizontal_bias="0.96"/>
+            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="16dp"
+            app:layout_constraintTop_toTopOf="@+id/scrollview_playfield_player"
+            app:layout_constraintBottom_toBottomOf="@+id/scrollview_playfield_player"
+            android:layout_marginBottom="70dp"/>
     <TextView
-            android:textColor="#FFFF"
-            android:textSize="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+
+            android:textSize="14dp"
+            android:gravity="center"
+            android:background="@drawable/score"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:id="@+id/textView_playerfield_dealerScore"
-            android:layout_marginTop="60dp"
-            app:layout_constraintTop_toTopOf="@+id/scrollview_playfield_dealer"
-            app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="30dp"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintBottom_toBottomOf="@+id/scrollview_playfield_dealer"
+            app:layout_constraintTop_toTopOf="@+id/scrollview_playfield_dealer" android:layout_marginBottom="70dp"/>
 </android.support.constraint.ConstraintLayout>
