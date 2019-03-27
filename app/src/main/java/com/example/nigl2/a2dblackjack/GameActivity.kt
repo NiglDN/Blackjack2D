@@ -7,9 +7,15 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.support.v7.app.AlertDialog
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.reward.RewardItem
+import com.google.android.gms.ads.reward.RewardedVideoAd
+import com.google.android.gms.ads.reward.RewardedVideoAdListener
 import kotlinx.android.synthetic.main.activity_game.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -19,7 +25,54 @@ import kotlin.concurrent.schedule
 import kotlin.concurrent.thread
 
 
-class GameActivity : AppCompatActivity() {
+class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
+    override fun onRewardedVideoAdClosed() {
+        Log.i("GameActivity","Video closed")
+        loadRewardedVideoAd()
+
+    }
+
+    override fun onRewardedVideoAdLeftApplication() {
+        Log.i("GameActivity","video left application")
+
+    }
+
+    override fun onRewardedVideoAdLoaded() {
+        Log.i("GameActivity","Video loaded")
+
+    }
+
+    override fun onRewardedVideoAdOpened() {
+        Log.i("GameActivity","Video opened")
+
+    }
+
+    override fun onRewardedVideoCompleted() {
+        val myPreference = MyPreference(this)
+        myPreference.setCredits(myPreference.getCredits() + 1000)
+        Log.i("GameActivity","reward incoming video completed")
+        Toast.makeText(this, "Dir wurden 1000 Credits gutgeschrieben", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onRewarded(p0: RewardItem?) {
+        Log.i("GameActivity","reward applied")
+
+    }
+
+    override fun onRewardedVideoStarted() {
+        Log.i("GameActivity"," Video started")
+
+    }
+
+    override fun onRewardedVideoAdFailedToLoad(p0: Int) {
+        Log.i("GameActivity","Video failed to load")
+
+    }
+
+    private lateinit var mRewardedVideoAd: RewardedVideoAd
+
+
+
 
     private var credit = 0                              // credits of player
     private var betTotal = 0                            // credits the player deposited for the game
@@ -45,6 +98,13 @@ class GameActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
         val myPreference = MyPreference(this)
+
+        mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this)
+        mRewardedVideoAd.rewardedVideoAdListener = this
+
+        loadRewardedVideoAd()
+
+
 
         //betButtons
         button_playfield_bet10.setOnClickListener {
@@ -185,6 +245,13 @@ class GameActivity : AppCompatActivity() {
         textView_playfield_currentBalance.text = "Credits: $credit"
     }
 
+
+    //ad function
+    private fun loadRewardedVideoAd() {
+        mRewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917",
+            AdRequest.Builder().build())
+    }
+
     //call this when the dealer must draw
     private fun dealerDraws() {
         dealerCardScore.add(SingletonCards.cardDeckList[0].second)
@@ -295,8 +362,13 @@ class GameActivity : AppCompatActivity() {
             val builder = AlertDialog.Builder(this)
             builder.setTitle("Pleite")
             builder.setMessage("Du hast keine Credits mehr! \nDu kannst ein kurzes Werbevideo schauen um Credits zu bekommen")
-            builder.setPositiveButton("Credits bekommen (1000)"){dialog, which ->
-                startActivity(Intent(this, AdvertismentActivity::class.java))
+            builder.setPositiveButton("Werbung ansehen: (1000 Credits)"){dialog, which ->
+                if (mRewardedVideoAd.isLoaded) {
+                    mRewardedVideoAd.show()
+                } else {
+                    Toast.makeText(this, "Keine Werbung verfügbar", Toast.LENGTH_SHORT).show()
+                }
+
             }
             builder.setNegativeButton("Nein"){dialog, which -> }
             builder.setCancelable(false)
