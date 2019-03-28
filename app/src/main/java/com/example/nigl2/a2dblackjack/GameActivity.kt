@@ -2,6 +2,7 @@ package com.example.nigl2.a2dblackjack
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -10,6 +11,7 @@ import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.*
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
@@ -242,6 +244,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         betTotal += bet
         credit -= bet
         textView_playfield_betTotal.text = betTotal.toString()
+        textView_playfield_betTotal.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_grow_fade_in_from_bottom))
         textView_playfield_currentBalance.text = "Credits: $credit"
     }
 
@@ -263,8 +266,10 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             dealerScore -= 10
             dealerAssHands--
         }
+        var draw = drawCard()
         textView_playerfield_dealerScore.text = dealerScore.toString()
-        linearlayout_playfield_dealer.addView(drawCard())
+        linearlayout_playfield_dealer.addView(draw)
+        draw.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_grow_fade_in_from_bottom))
         scrollview_playfield_dealer.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
     }
 
@@ -280,8 +285,11 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             playerAssHands--
         }
         textView_playerfield_playerScore.text = playerScore.toString()
-                linearlayout_playfield_player.addView(drawCard())
-                scrollview_playfield_player.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+        var draw = drawCard()
+        linearlayout_playfield_player.addView(draw)
+        draw.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_grow_fade_in_from_bottom))
+
+        scrollview_playfield_player.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
     }
 
     //helper function for drawing cards
@@ -356,13 +364,15 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
         textView_playfield_currentBalance.text = "Credits:  " + credit.toString()
         textView_playfield_betTotal.text = betTotal.toString()
+        textView_playfield_betTotal.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_grow_fade_in_from_bottom))
+        textView_playerfield_loseWinCondition.text = ""
 
         //checks if you need credits
         if (credit == 0){
             val builder = AlertDialog.Builder(this)
             builder.setTitle("Pleite")
-            builder.setMessage("Du hast keine Credits mehr! \nDu kannst ein kurzes Werbevideo schauen um Credits zu bekommen")
-            builder.setPositiveButton("Werbung ansehen: (1000 Credits)"){dialog, which ->
+            builder.setMessage("Du hast keine Credits mehr! \nDu kannst ein kurzes Werbevideo schauen um 1000 Credits zu bekommen")
+            builder.setPositiveButton("Werbung ansehen"){dialog, which ->
                 if (mRewardedVideoAd.isLoaded) {
                     mRewardedVideoAd.show()
                 } else {
@@ -372,7 +382,9 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             }
             builder.setNegativeButton("Nein"){dialog, which -> }
             builder.setCancelable(false)
+
             val dialog: AlertDialog = builder.create()
+            dialog.window.setBackgroundDrawableResource(R.drawable.dialog_bg)
             dialog.show()
         }
     }
@@ -386,12 +398,10 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             drawAgain = false
             checkLoseCondition()
         }
-        Handler().postDelayed({
-            if(drawAgain){
-                dealerPlays()
-            }
-        },1000)
         if (drawAgain){
+        Handler().postDelayed({
+                dealerPlays()
+        },750)
             dealerDraws()
         }
     }
@@ -418,12 +428,15 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         button_playfield_stand.isClickable = false
         button_playfield_next.isClickable = false
         button_playfield_doubled.isClickable = false
-        Handler().postDelayed({
         val myPreference = MyPreference(this)
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Glückwunsch")
-        builder.setMessage("Du hast Gewonnen \nSpieler Hand: $playerScore \nDealer Hand: $dealerScore")
-        builder.setPositiveButton("OK") { dialog, which ->
+        textView_playerfield_loseWinCondition.text = "Du hast gewonnen!"
+        if(playerScore == 21 && playerCardScore.size == 2){
+            textView_playerfield_loseWinCondition.text = "BLACKJACK!"
+            myPreference.setBlackJackCount(myPreference.getBlackJackCount() + 1)
+        }
+        textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+        Handler().postDelayed({
+
             betTotal = (betTotal * factor).toInt()
             credit += betTotal
             myPreference.setCredits(credit)
@@ -433,23 +446,17 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal)
             Toast.makeText(applicationContext,"Du gewinnst $betTotal",Toast.LENGTH_SHORT).show()
             resetField()
-         }
-        builder.setCancelable(false)
-        val dialog: AlertDialog = builder.create()
-        dialog.show()
-        },500)
+        },2000)
     }
 
     private fun playerLoses() {
         button_playfield_stand.isClickable = false
         button_playfield_next.isClickable = false
         button_playfield_doubled.isClickable = false
+        textView_playerfield_loseWinCondition.text = "Du hast verloren!"
+        textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
         Handler().postDelayed({
         val myPreference = MyPreference(this)
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Schade")
-        builder.setMessage("Du hast verloren \nSpieler Hand: $playerScore \nDealer Hand: $dealerScore")
-        builder.setPositiveButton("OK"){dialog, which ->
             if (dealerScore == 21 && dealerCardScore.size == 2)
                 credit += (insurancemoney * 3)
             myPreference.setCredits(credit)
@@ -457,31 +464,21 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal)
             Toast.makeText(applicationContext,"Du verlierst " + betTotal,Toast.LENGTH_SHORT).show()
             resetField()
-        }
-        builder.setCancelable(false)
-        val dialog: AlertDialog = builder.create()
-        dialog.show()
-        },500)
+        },2000)
     }
 
     private fun playerTie() {
         button_playfield_stand.isClickable = false
         button_playfield_next.isClickable = false
         button_playfield_doubled.isClickable = false
+        textView_playerfield_loseWinCondition.text = "Unentschieden!"
+        textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
         Handler().postDelayed({
         val myPreference = MyPreference(this)
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("Unentschieden")
-            builder.setMessage("Keiner gewinnt \n Spieler Hand: $playerScore \n Dealer Hand: $dealerScore")
-            builder.setPositiveButton("OK") { dialog, which ->
                 myPreference.setTieCount(myPreference.getTieCount() + 1)
                 Toast.makeText(applicationContext, "Du bekommst deinen Einsatz zurück", Toast.LENGTH_SHORT).show()
                 resetField()
-            }
-            builder.setCancelable(false)
-            val dialog: AlertDialog = builder.create()
-            dialog.show()
-        },500)
+        },2000)
     }
 
     //checks for Blackjack and Insurrance
@@ -489,7 +486,6 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         val myPreference = MyPreference(this)
         // Blackjack
         if (dealerScore < 11 && playerScore == 21) {
-            myPreference.setBlackJackCount(myPreference.getBlackJackCount() + 1)
             playerWins(2.5)
         }
         //checks even money
@@ -510,6 +506,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             }
             builder.setCancelable(false)
             val dialog: AlertDialog = builder.create()
+            dialog.window.setBackgroundDrawableResource(R.drawable.dialog_bg)
             dialog.show()
             myPreference.setBlackJackCount(myPreference.getBlackJackCount() + 1)
         }
@@ -529,6 +526,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             }
             builder.setCancelable(false)
             val dialog: AlertDialog = builder.create()
+            dialog.window.setBackgroundDrawableResource(R.drawable.dialog_bg)
             dialog.show()
         }
     }
