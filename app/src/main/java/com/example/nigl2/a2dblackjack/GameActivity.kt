@@ -140,6 +140,27 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         }
 
         // actionButtons
+
+        floatingActionButton_StrategyTable.setOnClickListener {
+            val image = ImageView(this)
+
+            image.setImageResource(R.drawable.basis2)
+            val builder = AlertDialog.Builder(this)
+            builder.setCancelable(true)
+            val dialog: AlertDialog = builder.create()
+            image.setOnClickListener(){
+                dialog.dismiss()
+            }
+            dialog.window.setBackgroundDrawableResource(R.drawable.dialog_basicstrat)
+            dialog.setView(image)
+            dialog.setCanceledOnTouchOutside(true)
+            dialog.show()
+        }
+
+        floatingActionButton_Help.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://de.blackjack.org/blackjack-regeln/")))
+        }
+
         button_playfield_deal.setOnClickListener {
             //checks if you need credits
             if (credit == 0 && betTotal == 0) {
@@ -326,34 +347,6 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             textView_playfield_currentBalance.text = (myPreference.getCredits() - betTotal).toString() + " $"
             Toast.makeText(this, "Splitten für $betTotal Credits", Toast.LENGTH_SHORT).show()
             split()
-        }
-
-        floatingActionButton_StrategyTable.setOnClickListener {
-            val image = ImageView(this)
-
-            image.setImageResource(R.drawable.basis1)
-
-
-            val builder = AlertDialog.Builder(this)
-
-
-            builder.setCancelable(true)
-
-            val dialog: AlertDialog = builder.create()
-
-
-            dialog.window.setBackgroundDrawableResource(R.drawable.dialog_basicstrat)
-            dialog.setView(image)
-
-            dialog.setCanceledOnTouchOutside(true)
-            dialog.show()
-            image.setOnClickListener(){
-                dialog.dismiss()
-            }
-        }
-
-        floatingActionButton_Help.setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://de.blackjack.org/blackjack-regeln/")))
         }
     }
 
