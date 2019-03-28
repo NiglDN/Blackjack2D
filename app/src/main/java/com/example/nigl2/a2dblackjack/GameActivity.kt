@@ -211,11 +211,6 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
             button_playfield_reverse.isClickable = false
 
-            if (playerCardScore[0] == playerCardScore[1]){
-                button_playfield_split.isClickable = true
-                button_playfield_split.visibility = View.VISIBLE
-            }
-
             afterBet = true
             //first turn
 
@@ -226,8 +221,15 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             playerDraws()
             dealerDraws()
 
+            if (playerCardScore[0] == playerCardScore[1]){
+                button_playfield_split.isClickable = true
+                button_playfield_split.visibility = View.VISIBLE
+            }
+
             //blackjack
             checkBlackjack()
+
+
         }
 
         button_playfield_next.setOnClickListener {
