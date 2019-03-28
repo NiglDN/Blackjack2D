@@ -265,7 +265,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                         textView_playerfield_loseWinCondition.text = "Spiele mit rechter Hand"
                         textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
                         Handler().postDelayed({
-                            textView_playerfield_loseWinCondition.visibility = View.INVISIBLE
+                            textView_playerfield_loseWinCondition.text = ""
                         }, 2000)
                         Toast.makeText(this, "Linke Hand busted!", Toast.LENGTH_SHORT).show()
                         myPreference.setBustedCount(myPreference.getBustedCount() + 1)
@@ -303,7 +303,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                     textView_playerfield_loseWinCondition.text = "Spiele mit rechter Hand"
                     textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
                     Handler().postDelayed({
-                        textView_playerfield_loseWinCondition.visibility = View.INVISIBLE
+                        textView_playerfield_loseWinCondition.text = ""
                     }, 2000)
                     leftMode = false
                 } else {
@@ -354,7 +354,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         textView_playerfield_loseWinCondition.text = "Spiele mit linker Hand"
         textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
         Handler().postDelayed({
-            textView_playerfield_loseWinCondition.visibility = View.INVISIBLE
+            textView_playerfield_loseWinCondition.text = ""
         }, 2000)
         //disable normal field and enable split field
         scrollview_playfield_player.visibility = View.INVISIBLE
@@ -639,6 +639,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
     // gives money
     // facotr shows how much you win
     private fun playerWins(factor: Double) {
+        var multiply = factor
         button_playfield_stand.isClickable = false
         button_playfield_next.isClickable = false
         button_playfield_doubled.isClickable = false
@@ -677,10 +678,11 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             if(playerScore == 21 && playerCardScore.size == 2){
                 textView_playerfield_loseWinCondition.text = "BLACKJACK!"
                 myPreference.setBlackJackCount(myPreference.getBlackJackCount() + 1)
+                multiply = 2.5
             }
             textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
             Handler().postDelayed({
-                betTotal = (betTotal * factor).toInt()
+                betTotal = (betTotal * multiply).toInt()
                 credit += betTotal
                 myPreference.setCredits(credit)
                 myPreference.setWinCount(myPreference.getWinCount() + 1)
