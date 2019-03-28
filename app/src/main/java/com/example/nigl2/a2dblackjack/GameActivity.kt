@@ -1,6 +1,9 @@
 package com.example.nigl2.a2dblackjack
 
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
+import android.opengl.Visibility
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -73,6 +76,16 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
     private var dealerAssHands = 0                      // number of player ass
     private var insurancemoney = 0                      // insurance money
     private var afterBet = false
+
+    //split cards
+    private var splitLeft = mutableListOf<Int>()
+    private var splitRight = mutableListOf<Int>()
+    private var splitScoreLeft = 0
+    private var splitScoreRight = 0
+    private var firstCardsInfo = 0
+    private var secondCardsInfo = 0
+    private var splitMode = false
+    private var leftMode = true
 
     override fun onPause() {
         super.onPause()
@@ -198,10 +211,18 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
             button_playfield_reverse.isClickable = false
 
+            if (playerCardScore[0] == playerCardScore[1]){
+                button_playfield_split.isClickable = true
+                button_playfield_split.visibility = View.VISIBLE
+            }
+
             afterBet = true
             //first turn
 
+
+            firstCardsInfo = SingletonCards.cardDeckList[0].first
             playerDraws()
+            secondCardsInfo = SingletonCards.cardDeckList[0].first
             playerDraws()
             dealerDraws()
 
@@ -210,22 +231,68 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         }
 
         button_playfield_next.setOnClickListener {
-            playerDraws()
-            button_playfield_doubled.isClickable = false
-            button_playfield_doubled.visibility = View.INVISIBLE
-            //checks if you busted
-            if (playerScore > 21) {
-                playerLoses()
-                myPreference.setBustedCount(myPreference.getBustedCount() + 1)
+            if (splitMode){
+                if (leftMode){
+                    playerDrawsSplitLeft()
+                    //checks if you busted
+                    if (splitScoreLeft > 21) {
+                        playerAssHands = 0
+                        if (splitScoreRight == 11)
+                            playerAssHands = 1
+                        textView_playerfield_loseWinCondition.text = "Spiele mit rechter Hand"
+                        textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+                        Handler().postDelayed({
+                            textView_playerfield_loseWinCondition.visibility = View.INVISIBLE
+                        }, 2000)
+                        Toast.makeText(this, "Linke Hand busted!", Toast.LENGTH_SHORT).show()
+                        myPreference.setBustedCount(myPreference.getBustedCount() + 1)
+                        leftMode = false
+                    }
+                } else {
+                    playerDrawsSplitRight()
+                    //checks if you busted
+                    if (splitScoreRight > 21) {
+                        Toast.makeText(this, "Rechte Hand busted!", Toast.LENGTH_SHORT).show()
+                        myPreference.setBustedCount(myPreference.getBustedCount() + 1)
+                        leftMode = true
+                        dealerPlays(splitScoreLeft,splitLeft)
+                    }
+                }
+            } else {
+                playerDraws()
+                button_playfield_doubled.isClickable = false
+                button_playfield_doubled.visibility = View.INVISIBLE
+
+                //checks if you busted
+                if (playerScore > 21) {
+                    playerLoses()
+                    myPreference.setBustedCount(myPreference.getBustedCount() + 1)
+                }
             }
         }
 
         button_playfield_stand.setOnClickListener {
-            button_playfield_stand.isClickable = false
-            button_playfield_next.isClickable = false
-            button_playfield_doubled.isClickable = false
-
-            dealerPlays()
+            if (splitMode){
+                if (leftMode){
+                    playerAssHands = 0
+                    if (splitScoreRight == 11)
+                        playerAssHands = 1
+                    textView_playerfield_loseWinCondition.text = "Spiele mit rechter Hand"
+                    textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+                    Handler().postDelayed({
+                        textView_playerfield_loseWinCondition.visibility = View.INVISIBLE
+                    }, 2000)
+                    leftMode = false
+                } else {
+                    leftMode = true
+                    dealerPlays(splitScoreLeft, splitLeft)
+                }
+            } else {
+                button_playfield_stand.isClickable = false
+                button_playfield_next.isClickable = false
+                button_playfield_doubled.isClickable = false
+                dealerPlays(playerScore,playerCardScore)
+            }
         }
 
         button_playfield_doubled.setOnClickListener {
@@ -242,9 +309,84 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                 button_playfield_stand.isClickable = false
                 button_playfield_next.isClickable = false
                 button_playfield_doubled.isClickable = false
-                dealerPlays()
+                dealerPlays(playerScore,playerCardScore)
             }
         }
+
+        button_playfield_split.setOnClickListener {
+            button_playfield_split.isClickable = false
+            button_playfield_split.visibility = View.INVISIBLE
+            button_playfield_doubled.isClickable = false
+            button_playfield_doubled.visibility = View.INVISIBLE
+            textView_playfield_betTotal.text = (betTotal * 2).toString()
+            myPreference.setCredits(myPreference.getCredits() - betTotal)
+            credit -= betTotal
+            textView_playfield_currentBalance.text = (myPreference.getCredits() - betTotal).toString() + " $"
+            Toast.makeText(this, "Splitten für $betTotal Credits", Toast.LENGTH_SHORT).show()
+            split()
+        }
+
+        floatingActionButton_StrategyTable.setOnClickListener {
+            val image = ImageView(this)
+
+            image.setImageResource(R.drawable.basis1)
+
+
+            val builder = AlertDialog.Builder(this)
+
+
+            builder.setCancelable(true)
+
+            val dialog: AlertDialog = builder.create()
+
+
+            dialog.window.setBackgroundDrawableResource(R.drawable.dialog_basicstrat)
+            dialog.setView(image)
+
+            dialog.setCanceledOnTouchOutside(true)
+            dialog.show()
+            image.setOnClickListener(){
+                dialog.dismiss()
+            }
+        }
+
+        floatingActionButton_Help.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://de.blackjack.org/blackjack-regeln/")))
+        }
+    }
+
+    private fun split() {
+        textView_playerfield_loseWinCondition.text = "Spiele mit linker Hand"
+        textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+        Handler().postDelayed({
+            textView_playerfield_loseWinCondition.visibility = View.INVISIBLE
+        }, 2000)
+        //disable normal field and enable split field
+        scrollview_playfield_player.visibility = View.INVISIBLE
+        scrollview_playfield_player.isClickable = false
+
+        horizontalScrollView_playerfield_splitRight.visibility = View.VISIBLE
+        horizontalScrollView_playerfield_splitRight.isClickable = true
+
+        horizontalScrollView_playerfield_splitLeft.visibility = View.VISIBLE
+        horizontalScrollView_playerfield_splitLeft.isClickable = true
+
+        textView_playerfield_splitLeftScore.visibility = View.VISIBLE
+
+        //start spliting cards
+        SingletonCards.cardDeckList[0] = Pair(firstCardsInfo, playerCardScore[0])
+        SingletonCards.cardDeckList[1] = Pair(secondCardsInfo, playerCardScore[1])
+
+        playerScore = 0
+        splitMode = true
+        leftMode = true
+
+        playerDrawsSplitLeft()
+        playerDrawsSplitRight()
+
+        playerAssHands = 0
+        if (splitScoreLeft == 11)
+            playerAssHands = 1
     }
 
     // helper function for credits
@@ -305,6 +447,43 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         scrollview_playfield_player.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
     }
 
+    //call this when the player must draw (split left)
+    private fun playerDrawsSplitLeft() {
+        splitLeft.add(SingletonCards.cardDeckList[0].second)
+        splitScoreLeft += splitLeft[splitLeft.lastIndex]
+        // checks if hand gets hard
+        if (splitLeft[splitLeft.lastIndex] == 11)
+            playerAssHands++
+        if (splitScoreLeft > 21 && playerAssHands != 0) {
+            splitScoreLeft -= 10
+            playerAssHands--
+        }
+        textView_playerfield_splitLeftScore.text = splitScoreLeft.toString()
+        var draw = drawCard()
+        linearlayout_playfield_splitLeft.addView(draw)
+        draw.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_grow_fade_in_from_bottom))
+        horizontalScrollView_playerfield_splitLeft.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+    }
+
+    //call this when the player must draw (split right)
+    private fun playerDrawsSplitRight() {
+        splitRight.add(SingletonCards.cardDeckList[0].second)
+        splitScoreRight += splitRight[splitRight.lastIndex]
+        // checks if hand gets hard
+        if (splitRight[splitRight.lastIndex] == 11)
+            playerAssHands++
+        if (splitScoreRight > 21 && playerAssHands != 0) {
+            splitScoreRight -= 10
+            playerAssHands--
+        }
+        textView_playerfield_playerScore.text = splitScoreRight.toString()
+        var draw = drawCard()
+        linearlayout_playfield_splitRight.addView(draw)
+        draw.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_grow_fade_in_from_bottom))
+
+        horizontalScrollView_playerfield_splitRight.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+    }
+
     //helper function for drawing cards
     private fun drawCard() : ImageView {
         var layoutParam = ViewGroup.MarginLayoutParams(222, 323)
@@ -330,6 +509,20 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
         button_playfield_doubled.isClickable = false
         button_playfield_doubled.visibility = View.INVISIBLE
+
+        button_playfield_split.isClickable = false
+        button_playfield_split.visibility = View.INVISIBLE
+
+        scrollview_playfield_player.isClickable = true
+        scrollview_playfield_player.visibility = View.VISIBLE
+
+        horizontalScrollView_playerfield_splitLeft.isClickable = false
+        horizontalScrollView_playerfield_splitLeft.visibility = View.INVISIBLE
+
+        horizontalScrollView_playerfield_splitRight.isClickable = false
+        horizontalScrollView_playerfield_splitRight.visibility = View.INVISIBLE
+
+        textView_playerfield_splitLeftScore.visibility = View.INVISIBLE
 
         textView_playerfield_playerScore.visibility = View.INVISIBLE
 
@@ -361,6 +554,8 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
         linearlayout_playfield_dealer.removeAllViews()
         linearlayout_playfield_player.removeAllViews()
+        linearlayout_playfield_splitLeft.removeAllViews()
+        linearlayout_playfield_splitRight.removeAllViews()
         SingletonCards.cardDeckList.clear()
         SingletonCards.createDeck()
 
@@ -374,7 +569,14 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         dealerCardScore.clear()
         insurancemoney = 0
         afterBet = false
-
+        splitLeft.clear()
+        splitRight.clear()
+        splitScoreLeft = 0
+        splitScoreRight = 0
+        firstCardsInfo = 0
+        secondCardsInfo = 0
+        splitMode = false
+        leftMode = true
         textView_playfield_currentBalance.text = "$credit $"
         textView_playfield_currentBalance.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
         textView_playfield_betTotal.text = betTotal.toString()
@@ -406,33 +608,36 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
 
     //call this when its the dealers turn
-    private fun dealerPlays(){
+    private fun dealerPlays(score : Int, list : MutableList<Int>){
         var drawAgain = true
         if (dealerScore > 16) {
             drawAgain = false
-            checkLoseCondition()
+            checkLoseCondition(score,list)
         }
         if (drawAgain){
         Handler().postDelayed({
-                dealerPlays()
+                dealerPlays(score,list)
         },750)
             dealerDraws()
         }
     }
 
     //checks if you lost
-    private fun checkLoseCondition(){
-        if (dealerScore > 21)
-            playerWins(2.0)
-        else if (dealerScore == 21 && dealerCardScore.size == 2 && playerCardScore.size > 2)
+    private fun checkLoseCondition(score : Int, list : MutableList<Int>){
+        if (score > 21){
             playerLoses()
-        else if (dealerScore == 21 && dealerCardScore.size == 2 && playerCardScore.size == 2 && dealerScore == playerScore)
-            playerTie()
-        else if(playerScore == dealerScore)
-            playerTie()
-        else if(playerScore > dealerScore)
+        }
+        else if (dealerScore > 21)
             playerWins(2.0)
-        else if(playerScore < dealerScore)
+        else if (dealerScore == 21 && dealerCardScore.size == 2 && list.size > 2)
+            playerLoses()
+        else if (dealerScore == 21 && dealerCardScore.size == 2 && list.size == 2 && dealerScore == score)
+            playerTie()
+        else if(score == dealerScore)
+            playerTie()
+        else if(score > dealerScore)
+            playerWins(2.0)
+        else if(score < dealerScore)
             playerLoses()
     }
 
@@ -443,59 +648,137 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         button_playfield_next.isClickable = false
         button_playfield_doubled.isClickable = false
         val myPreference = MyPreference(this)
-        textView_playerfield_loseWinCondition.text = "Sie haben gewonnen"
-        if(playerScore == 21 && playerCardScore.size == 2){
-            textView_playerfield_loseWinCondition.text = "BLACKJACK!"
-            myPreference.setBlackJackCount(myPreference.getBlackJackCount() + 1)
+        if (splitMode){
+            if (leftMode){
+                textView_playerfield_loseWinCondition.text = "Linke Hand gewonnen"
+                textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+                Handler().postDelayed({
+                    credit += (betTotal * factor).toInt()
+                    myPreference.setCredits(credit)
+                    myPreference.setWinCount(myPreference.getWinCount() + 1)
+                    if (myPreference.getMostCredits() < betTotal)
+                        myPreference.setMostCredits(betTotal)
+                    myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal)
+                    Toast.makeText(applicationContext,"Sie gewinnen " + (betTotal * factor).toInt() + " $",Toast.LENGTH_SHORT).show()
+                    leftMode = false
+                    checkLoseCondition(splitScoreRight,splitRight)
+                },2000)
+            } else {
+                textView_playerfield_loseWinCondition.text = "Rechte Hand gewonnen"
+                textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+                Handler().postDelayed({
+                    credit += (betTotal * factor).toInt()
+                    myPreference.setCredits(credit)
+                    myPreference.setWinCount(myPreference.getWinCount() + 1)
+                    if (myPreference.getMostCredits() < betTotal)
+                        myPreference.setMostCredits(betTotal)
+                    myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal)
+                    Toast.makeText(applicationContext,"Sie gewinnen " + (betTotal * factor).toInt() + " $",Toast.LENGTH_SHORT).show()
+                    resetField()
+                },2000)
+            }
+        } else {
+            textView_playerfield_loseWinCondition.text = "Sie haben gewonnen"
+            if(playerScore == 21 && playerCardScore.size == 2){
+                textView_playerfield_loseWinCondition.text = "BLACKJACK!"
+                myPreference.setBlackJackCount(myPreference.getBlackJackCount() + 1)
+            }
+            textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+            Handler().postDelayed({
+                betTotal = (betTotal * factor).toInt()
+                credit += betTotal
+                myPreference.setCredits(credit)
+                myPreference.setWinCount(myPreference.getWinCount() + 1)
+                if (myPreference.getMostCredits() < betTotal)
+                    myPreference.setMostCredits(betTotal)
+                myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal)
+                Toast.makeText(applicationContext,"Sie gewinnen $betTotal $",Toast.LENGTH_SHORT).show()
+                resetField()
+            },2000)
         }
-        textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
-        Handler().postDelayed({
-
-            betTotal = (betTotal * factor).toInt()
-            credit += betTotal
-            myPreference.setCredits(credit)
-            myPreference.setWinCount(myPreference.getWinCount() + 1)
-            if (myPreference.getMostCredits() < betTotal)
-                myPreference.setMostCredits(betTotal)
-            myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal)
-            Toast.makeText(applicationContext,"Sie gewinnen $betTotal $",Toast.LENGTH_SHORT).show()
-            resetField()
-        },2000)
     }
 
     private fun playerLoses() {
         button_playfield_stand.isClickable = false
         button_playfield_next.isClickable = false
         button_playfield_doubled.isClickable = false
-        textView_playerfield_loseWinCondition.text = "Sie haben verloren"
-        textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
-        Handler().postDelayed({
         val myPreference = MyPreference(this)
-            myPreference.setCredits(credit)
-            myPreference.setLoseCount(myPreference.getLoseCount() + 1)
-            myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal)
-            if (dealerScore == 21 && dealerCardScore.size == 2){
-                credit += (insurancemoney * 3)
-                Toast.makeText(applicationContext,"Sie velieren nichts dank der Versicherung",Toast.LENGTH_SHORT).show()
+        if (splitMode){
+            if (leftMode){
+                textView_playerfield_loseWinCondition.text = "Linke Hand verliert"
+                textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+                Handler().postDelayed({
+                    myPreference.setCredits(credit)
+                    myPreference.setLoseCount(myPreference.getLoseCount() + 1)
+                    myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal)
+                    Toast.makeText(applicationContext,"Sie verlieren $betTotal $",Toast.LENGTH_SHORT).show()
+                    leftMode = false
+                    checkLoseCondition(splitScoreRight,splitRight)
+                },2000)
             } else {
-                Toast.makeText(applicationContext,"Sie verlieren $betTotal $",Toast.LENGTH_SHORT).show()
+                textView_playerfield_loseWinCondition.text = "Rechte Hand verliert"
+                textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+                Handler().postDelayed({
+                    myPreference.setCredits(credit)
+                    myPreference.setLoseCount(myPreference.getLoseCount() + 1)
+                    myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal)
+                    Toast.makeText(applicationContext,"Sie verlieren $betTotal $",Toast.LENGTH_SHORT).show()
+                    resetField()
+                },2000)
             }
-            resetField()
-        },2000)
+        } else{
+            textView_playerfield_loseWinCondition.text = "Sie haben verloren"
+            textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+            Handler().postDelayed({
+                myPreference.setCredits(credit)
+                myPreference.setLoseCount(myPreference.getLoseCount() + 1)
+                myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal)
+                if (dealerScore == 21 && dealerCardScore.size == 2){
+                    credit += (insurancemoney * 3)
+                    Toast.makeText(applicationContext,"Sie velieren nichts dank der Versicherung",Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(applicationContext,"Sie verlieren $betTotal $",Toast.LENGTH_SHORT).show()
+                }
+                resetField()
+            },2000)
+        }
     }
 
     private fun playerTie() {
         button_playfield_stand.isClickable = false
         button_playfield_next.isClickable = false
         button_playfield_doubled.isClickable = false
-        textView_playerfield_loseWinCondition.text = "Unentschieden"
-        textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
-        Handler().postDelayed({
-        val myPreference = MyPreference(this)
+        if (splitMode){
+            if(leftMode){
+                textView_playerfield_loseWinCondition.text = "Linke Hand Unentschieden"
+                textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+                Handler().postDelayed({
+                    val myPreference = MyPreference(this)
+                    myPreference.setTieCount(myPreference.getTieCount() + 1)
+                    Toast.makeText(applicationContext, "Sie bekommen Ihren Einsatz zurück", Toast.LENGTH_SHORT).show()
+                    leftMode = false
+                    checkLoseCondition(splitScoreRight,splitRight)
+                },2000)
+            } else {
+                textView_playerfield_loseWinCondition.text = "Rechte Hand Unentschieden"
+                textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+                Handler().postDelayed({
+                    val myPreference = MyPreference(this)
+                    myPreference.setTieCount(myPreference.getTieCount() + 1)
+                    Toast.makeText(applicationContext, "Sie bekommen Ihren Einsatz zurück", Toast.LENGTH_SHORT).show()
+                    resetField()
+                },2000)
+            }
+        } else {
+            textView_playerfield_loseWinCondition.text = "Unentschieden"
+            textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
+            Handler().postDelayed({
+                val myPreference = MyPreference(this)
                 myPreference.setTieCount(myPreference.getTieCount() + 1)
                 Toast.makeText(applicationContext, "Sie bekommen Ihren Einsatz zurück", Toast.LENGTH_SHORT).show()
                 resetField()
-        },2000)
+            },2000)
+        }
     }
 
     //checks for Blackjack and Insurrance
