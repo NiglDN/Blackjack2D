@@ -203,7 +203,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
             textView_playerfield_playerScore.visibility = View.VISIBLE
 
-            if(betTotal < credit) {
+            if(betTotal <= credit) {
                 button_playfield_doubled.isClickable = true
                 button_playfield_doubled.visibility = View.VISIBLE
             } else {
@@ -242,7 +242,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             playerDraws()
             dealerDraws()
 
-            if (playerCardScore[0] == playerCardScore[1]){
+            if (playerCardScore[0] == playerCardScore[1] && betTotal <= credit){
                 button_playfield_split.isClickable = true
                 button_playfield_split.visibility = View.VISIBLE
             }
