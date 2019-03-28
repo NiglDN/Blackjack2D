@@ -1,13 +1,19 @@
 package com.example.nigl2.a2dblackjack
 
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
+import android.support.v4.media.MediaBrowserCompat
 import android.support.v7.app.AlertDialog
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
+import android.view.WindowManager.LayoutParams.FLAG_BLUR_BEHIND
 import android.view.animation.AnimationUtils
 import android.widget.*
 import com.google.android.gms.ads.AdRequest
@@ -208,7 +214,33 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             //blackjack
             checkBlackjack()
         }
+        floatingActionButton_StrategyTable.setOnClickListener {
+            val image = ImageView(this)
 
+            image.setImageResource(R.drawable.basis1)
+
+
+            val builder = AlertDialog.Builder(this)
+
+
+            builder.setCancelable(true)
+
+            val dialog: AlertDialog = builder.create()
+
+
+            dialog.window.setBackgroundDrawableResource(R.drawable.dialog_basicstrat)
+            dialog.setView(image)
+
+            dialog.setCanceledOnTouchOutside(true)
+            dialog.show()
+            image.setOnClickListener(){
+                dialog.dismiss()
+            }
+        }
+
+        floatingActionButton_Help.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://de.blackjack.org/blackjack-regeln/")))
+        }
         button_playfield_next.setOnClickListener {
             playerDraws()
             button_playfield_doubled.isClickable = false
