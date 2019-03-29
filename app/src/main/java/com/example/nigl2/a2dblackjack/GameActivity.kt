@@ -20,18 +20,32 @@ import com.google.android.gms.ads.reward.RewardedVideoAd
 import com.google.android.gms.ads.reward.RewardedVideoAdListener
 import kotlinx.android.synthetic.main.activity_game.*
 
-
+/**
+ *
+ * GameActivity: Holds logic and View for the actual Game
+ */
 class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
+
+    /**
+     * overwrites default implementation to immediately reload ad again so its cached while user plays
+     */
     override fun onRewardedVideoAdClosed() {
         Log.i("GameActivity","Video closed")
         loadRewardedVideoAd()
 
     }
 
+    /**
+     * overwrites default implementation
+     *
+     */
     override fun onRewardedVideoAdLeftApplication() {
         Log.i("GameActivity","video left application")
     }
 
+    /**
+     * overwrites default implementation
+     */
     override fun onRewardedVideoAdLoaded() {
         Log.i("GameActivity","Video loaded")
 
@@ -42,6 +56,10 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
     }
 
+    /**
+     *
+     * overwrites default implementation to reward user once ad video is completed
+     */
     override fun onRewardedVideoCompleted() {
         val myPreference = MyPreference(this)
         myPreference.setCreditsWon(myPreference.getCreditsLost() + 1000)
@@ -50,49 +68,122 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         Toast.makeText(this, "1000 Credits gutgeschrieben", Toast.LENGTH_SHORT).show()
     }
 
+    /**
+     * overwrites default implementation
+     */
     override fun onRewarded(p0: RewardItem?) {
         Log.i("GameActivity","reward applied")
 
     }
 
+    /**
+     * overwrites default implementation
+     */
     override fun onRewardedVideoStarted() {
         Log.i("GameActivity"," Video started")
 
     }
-
+    /**
+     *  overwrites default implementation
+     */
     override fun onRewardedVideoAdFailedToLoad(p0: Int) {
         Log.i("GameActivity","Video failed to load")
 
     }
 
+    /**
+     * instance of rewardVideoad
+     */
     private lateinit var mRewardedVideoAd: RewardedVideoAd
 
+    /**
+     * credits of player
+     */
     private var credit = 0                              // credits of player
+    /**
+     * credits which are currently deposited in current game
+     */
     private var betTotal = 0                            // credits the player deposited for the game
+    /**
+     * list of all cards in players hand
+     */
     private var playerCardScore = mutableListOf<Int>()  // list of all the cards in players hand
+    /**
+     * list of all cards in dealers hand
+     */
     private var dealerCardScore = mutableListOf<Int>()  // list of all the cards in dealers hand
+    /**
+     * score of players current hand
+     */
     private var playerScore = 0                         // score of the players current hand
+    /**
+     * score of dealers current hand
+     */
     private var dealerScore = 0                         // score of the dealers current hand
+    /**
+     * number of aces in players hand
+     */
     private var playerAssHands = 0                      // number of player ass
+    /**
+     * number of aces in dealers hand
+     */
     private var dealerAssHands = 0                      // number of player ass
+    /**
+     * variable for insurancemoney when insurance is taken (int)
+     */
     private var insurancemoney = 0                      // insurance money
+    /**
+     * boolean which is set after bet is valid
+     */
     private var afterBet = false
 
     //split cards
+
+    /**
+     * list of all players left hand cards when split
+     */
     private var splitLeft = mutableListOf<Int>()
+    /**
+     * list of all players right hand cards when split
+     */
     private var splitRight = mutableListOf<Int>()
+    /**
+     * score of players split left hand
+     */
     private var splitScoreLeft = 0
+    /**
+     * score of players split right hand
+     */
     private var splitScoreRight = 0
+    /**
+     * value of first card in players original hand
+     */
     private var firstCardsInfo = 0
+    /**
+     * value of second card in players original hand
+     */
     private var secondCardsInfo = 0
+    /**
+     * boolean which is set if player decides to split his hand
+     *
+     */
     private var splitMode = false
+    /**
+     * boolean which defines which hand is currently being handled
+     */
     private var leftMode = true
 
+    /**
+     * overwrites activities default implementation
+     */
     override fun onPause() {
         super.onPause()
         mRewardedVideoAd.pause(this)
     }
 
+    /**
+     * overwrites activities default implementation
+     */
     override fun onResume() {
         super.onResume()
         if(!afterBet){
@@ -101,11 +192,19 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         mRewardedVideoAd.resume(this)
     }
 
+    /**
+     * overwrites activities default implementation
+     */
     override fun onDestroy() {
         super.onDestroy()
         mRewardedVideoAd.destroy(this)
     }
 
+    /**
+     * overwrites activities default implementation
+     * sets listeners, activates function of floating buttons
+     * handles betting and the first 3 dealt cards (2 player / 1 dealer)
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -350,6 +449,9 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         }
     }
 
+    /**
+     * sets view accordingly when player decides to split
+     */
     private fun split() {
         textView_playerfield_loseWinCondition.text = "Play with left hand"
         textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
@@ -384,8 +486,9 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             playerAssHands = 1
     }
 
-    // helper function for credits
-    // does not change credit value, just shows and accept with click on deal
+    /**
+     * handles the different betting amounts assigned to the betting buttons
+     */
     private fun bettingCredits(bet: Int) {
         if ((credit - bet) < 0) {
             Toast.makeText(this, "not enough Credits", Toast.LENGTH_SHORT).show()
@@ -399,13 +502,17 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
     }
 
 
-    //ad function
+    /**
+     * loads an ad with default ad-mob id
+     */
     private fun loadRewardedVideoAd() {
         mRewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917",
             AdRequest.Builder().build())
     }
 
-    //call this when the dealer must draw
+    /**
+     * is called when the dealer draws and handles drawing and displaying new dealers hand
+     */
     private fun dealerDraws() {
         dealerCardScore.add(SingletonCards.cardDeckList[0].second)
         dealerScore += dealerCardScore[dealerCardScore.lastIndex]
@@ -423,7 +530,9 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         scrollview_playfield_dealer.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
     }
 
-    //call this when the player must draw
+    /**
+     * is called when player draws, handles players drawing and displaying players new hand
+     */
     private fun playerDraws() {
         playerCardScore.add(SingletonCards.cardDeckList[0].second)
         playerScore += playerCardScore[playerCardScore.lastIndex]
@@ -442,7 +551,10 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         scrollview_playfield_player.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
     }
 
-    //call this when the player must draw (split left)
+    /**
+     * is called when player draws when he decided to split (left hand)
+     * sets view accordingly
+     */
     private fun playerDrawsSplitLeft() {
         splitLeft.add(SingletonCards.cardDeckList[0].second)
         splitScoreLeft += splitLeft[splitLeft.lastIndex]
@@ -460,7 +572,10 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         horizontalScrollView_playerfield_splitLeft.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
     }
 
-    //call this when the player must draw (split right)
+    /**
+     * is called when player draws when he decided to split (right hand)
+     * sets view accordingly
+     */
     private fun playerDrawsSplitRight() {
         splitRight.add(SingletonCards.cardDeckList[0].second)
         splitScoreRight += splitRight[splitRight.lastIndex]
@@ -479,7 +594,9 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         horizontalScrollView_playerfield_splitRight.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
     }
 
-    //helper function for drawing cards
+    /**
+     * helper function for drawing the card, sets card and its attributes accordingly in layout
+     */
     private fun drawCard() : ImageView {
         var layoutParam = ViewGroup.MarginLayoutParams(222, 323)
         layoutParam.setMargins(20, 0, 20, 0)
@@ -492,7 +609,9 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         return imgview
     }
 
-    //resets the whole field
+    /**
+     * resets whole playing field and underlying variables
+     */
     private fun resetField(){
         val myPreference = MyPreference(this)
         //hide buttons
@@ -601,8 +720,9 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
     }
 
 
-
-    //call this when its the dealers turn
+    /**
+     * is called when its dealers turn to draw cards, handles dealers "must draw to 16, must stand on 17"
+     */
     private fun dealerPlays(score : Int, list : MutableList<Int>){
         var drawAgain = true
         if (dealerScore > 16) {
@@ -617,7 +737,9 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         }
     }
 
-    //checks if you lost
+    /**
+     * checks if player has lost his current game and invokes the fitting method according to the outcome of the game
+     */
     private fun checkLoseCondition(score : Int, list : MutableList<Int>){
         if (score > 21){
             playerLoses()
@@ -636,8 +758,10 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             playerLoses()
     }
 
-    // gives money
-    // facotr shows how much you win
+    /**
+     * handles player-winning event
+     * @param factor how much players bet gets multiplied (difference between blackjack and "normal" win)
+     */
     private fun playerWins(factor: Double) {
         var multiply = factor
         button_playfield_stand.isClickable = false
@@ -651,14 +775,14 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                 textView_playerfield_loseWinCondition.text = "Left hand wins"
                 textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
                 Handler().postDelayed({
-                    myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal/2)
-                    credit += (betTotal/2 * multiply).toInt()
+                    myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal)
+                    credit += (betTotal * multiply).toInt()
                     myPreference.setCredits(credit)
                     myPreference.setWinCount(myPreference.getWinCount() + 1)
-                    if (myPreference.getMostCredits() > betTotal/2)
-                        myPreference.setMostCredits(betTotal/2)
+                    if (myPreference.getMostCredits() > betTotal*2)
+                        myPreference.setMostCredits(betTotal*2)
 
-                    Toast.makeText(applicationContext,"You win (left hand)" + (betTotal/2* factor).toInt() + " $",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext,"You win (left hand)" + (betTotal* factor).toInt() + " $",Toast.LENGTH_SHORT).show()
                     leftMode = false
                     checkLoseCondition(splitScoreRight,splitRight)
                 },2000)
@@ -667,14 +791,14 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                 textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
                 Handler().postDelayed({
 
-                    myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal/2)
-                    credit += (betTotal/2  * multiply).toInt()
+                    myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal)
+                    credit += (betTotal  * multiply).toInt()
                     myPreference.setCredits(credit)
                     myPreference.setWinCount(myPreference.getWinCount() + 1)
-                    if (myPreference.getMostCredits() < betTotal/2)
-                        myPreference.setMostCredits(betTotal/2)
+                    if (myPreference.getMostCredits() < betTotal*2)
+                        myPreference.setMostCredits(betTotal*2)
 
-                    Toast.makeText(applicationContext,"You win (right hand) " + (betTotal/2 * factor).toInt() + " $",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext,"You win (right hand) " + (betTotal * factor).toInt() + " $",Toast.LENGTH_SHORT).show()
                     resetField()
                 },2000)
             }
@@ -705,6 +829,9 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         }
     }
 
+    /**
+     * handles player-losing event
+     */
     private fun playerLoses() {
         button_playfield_stand.isClickable = false
         button_playfield_next.isClickable = false
@@ -739,6 +866,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             Handler().postDelayed({
 
                 myPreference.setLoseCount(myPreference.getLoseCount() + 1)
+                myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal + insurancemoney)
 
                 if (dealerScore == 21 && dealerCardScore.size == 2 && dealerCardScore[0] == 11 && insurancemoney > 0){
                     credit += (insurancemoney * 3)
@@ -746,7 +874,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                     Toast.makeText(applicationContext,"Loss is 0 because of insurance",Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(applicationContext,"You lose "+(insurancemoney+betTotal) +" $",Toast.LENGTH_SHORT).show()
-                    myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal + insurancemoney)
+
 
                 }
                 myPreference.setCredits(credit)
@@ -755,6 +883,9 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         }
     }
 
+    /**
+     * handles player-tieing event
+     */
     private fun playerTie() {
         button_playfield_stand.isClickable = false
         button_playfield_next.isClickable = false
@@ -788,7 +919,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             Handler().postDelayed({
 
                 myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
-                myPreference.setCredits(credit-insurancemoney+betTotal)
+                myPreference.setCredits(credit+betTotal)
                 myPreference.setTieCount(myPreference.getTieCount() + 1)
                 Toast.makeText(applicationContext, "Sie bekommen Ihren Einsatz zurück", Toast.LENGTH_SHORT).show()
                 resetField()
@@ -796,7 +927,9 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         }
     }
 
-    //checks for Blackjack and Insurrance
+    /**
+     * is called to check for blackjack and insurance situation
+     */
     private fun checkBlackjack(){
         val myPreference = MyPreference(this)
         // Blackjack

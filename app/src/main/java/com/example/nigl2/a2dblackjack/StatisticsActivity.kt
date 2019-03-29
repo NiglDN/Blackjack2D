@@ -15,8 +15,16 @@ import kotlinx.android.synthetic.main.activity_statistics.*
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
+/**
+ * Class which displays piechart and detailed statistics of players current session
+ * contains loadStats and resetStats methods
+ */
 class StatisticsActivity : AppCompatActivity() {
-
+    /**
+     * overwrites default implementation of onCreate
+     * sets listeners
+     *
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_statistics)
@@ -43,6 +51,9 @@ class StatisticsActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * loads the players current stats and displays them in the chart and list of stats
+     */
     fun loadStats(){
         val myPreference = MyPreference(this)
 
@@ -102,6 +113,9 @@ class StatisticsActivity : AppCompatActivity() {
         textView_stats_busted_count.text = myPreference.getBustedCount().toString()
     }
 
+    /**
+     * resets all stats to default
+     */
     fun resetStats(){
         val myPreference = MyPreference(this)
         myPreference.setCredits(5000)

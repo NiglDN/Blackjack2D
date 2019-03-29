@@ -2,8 +2,19 @@ package com.example.nigl2.a2dblackjack
 
 import javax.xml.transform.Source
 
+/**
+ * singleton object
+ */
 object SingletonCards {
+    /**
+     * cardDecklist as mutable list
+     */
     val cardDeckList : MutableList<Pair<Int, Int>> = mutableListOf()
+
+    /**
+     * function that fills list with pictures and their corresponding card values
+     * afterwards shuffles deck
+     */
     fun createDeck(){
 
         //add all cards

@@ -6,8 +6,15 @@ import android.os.Bundle
 import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 
+/**
+ * class which represents starting screen of app, has 3 buttons and its according listeners to start other activites
+ * also creates the card-deck
+ */
 class MainActivity : AppCompatActivity() {
-
+    /**
+     * overwrites default onCreate implementation
+     * sets listeners and creates carddeck
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
