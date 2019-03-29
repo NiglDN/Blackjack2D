@@ -171,8 +171,6 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                     if (mRewardedVideoAd.isLoaded) {
                         mRewardedVideoAd.show()
                     } else {
-                        //val myPreference = MyPreference(this)
-                        //myPreference.setCredits(myPreference.getCredits() + 500)
                         Toast.makeText(this, "No ad available", Toast.LENGTH_SHORT).show()
                     }
 
@@ -181,8 +179,6 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                 builder.setCancelable(false)
                 val dialog: AlertDialog = builder.create()
                 dialog.setOnShowListener {
-                    // dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#0040FF"))
-                    //dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#0040FF"))
                 }
                 dialog.window.setBackgroundDrawableResource(R.drawable.dialog_bg)
                 dialog.show()
@@ -285,6 +281,9 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                 playerDraws()
                 button_playfield_doubled.isClickable = false
                 button_playfield_doubled.visibility = View.INVISIBLE
+
+                button_playfield_split.isClickable = false
+                button_playfield_split.visibility = View.INVISIBLE
 
                 //checks if you busted
                 if (playerScore > 21) {
@@ -643,23 +642,22 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         button_playfield_stand.isClickable = false
         button_playfield_next.isClickable = false
         button_playfield_doubled.isClickable = false
-        var difwin1 = betTotal
-        var difwin2 = betTotal
+
+
         val myPreference = MyPreference(this)
         if (splitMode){
             if (leftMode){
-
                 textView_playerfield_loseWinCondition.text = "Left hand wins"
                 textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
                 Handler().postDelayed({
-                    myPreference.setCreditsWon(myPreference.getCreditsWon() + difwin1/2)
-                    credit += (betTotal * multiply).toInt()
+                    myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal/2)
+                    credit += (betTotal/2 * multiply).toInt()
                     myPreference.setCredits(credit)
                     myPreference.setWinCount(myPreference.getWinCount() + 1)
-                    if (myPreference.getMostCredits() < (difwin1/2))
-                        myPreference.setMostCredits((difwin1/2))
+                    if (myPreference.getMostCredits() > betTotal/2)
+                        myPreference.setMostCredits(betTotal/2)
 
-                    Toast.makeText(applicationContext,"You win (left hand)" + (difwin1 * factor).toInt() + " $",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext,"You win (left hand)" + (betTotal/2* factor).toInt() + " $",Toast.LENGTH_SHORT).show()
                     leftMode = false
                     checkLoseCondition(splitScoreRight,splitRight)
                 },2000)
@@ -668,14 +666,14 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                 textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
                 Handler().postDelayed({
 
-                    myPreference.setCreditsWon(myPreference.getCreditsWon() + difwin2/2)
-                    credit += (betTotal * multiply).toInt()
+                    myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal/2)
+                    credit += (betTotal/2  * multiply).toInt()
                     myPreference.setCredits(credit)
                     myPreference.setWinCount(myPreference.getWinCount() + 1)
-                    if (myPreference.getMostCredits() < (difwin2/2))
-                        myPreference.setMostCredits((difwin2/2))
+                    if (myPreference.getMostCredits() < betTotal/2)
+                        myPreference.setMostCredits(betTotal/2)
 
-                    Toast.makeText(applicationContext,"You win (right hand) " + (difwin2 * factor).toInt() + " $",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext,"You win (right hand) " + (betTotal/2 * factor).toInt() + " $",Toast.LENGTH_SHORT).show()
                     resetField()
                 },2000)
             }
@@ -699,7 +697,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                 if (myPreference.getMostCredits() < difwin)
                     myPreference.setMostCredits(difwin)
 
-                Toast.makeText(applicationContext,"You won" +difwin*1.5 +" $",Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext,"You won" +betTotal +" $",Toast.LENGTH_SHORT).show()
                 resetField()
             },2000)
         }
