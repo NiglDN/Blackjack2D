@@ -1,21 +1,21 @@
 <resources>
     <string name="game_start">Start</string>
-    <string name="back">Zurück</string>
-    <string name="statistics">Statistik</string>>
-    <string name="exit">Beenden</string>
-    <string name="stehen">Stehen</string>>
+    <string name="back">Back</string>
+    <string name="statistics">Statistics</string>>
+    <string name="exit">Exit</string>
+    <string name="stehen">Stand</string>>
     <string name="app_name">Blackjack2D</string>
-    <string name="ziehen">Ziehen</string>
+    <string name="ziehen">Hit</string>
     <string name="login">Login:</string>
-    <string name="wins">Gewonnene Spiele:</string>
-    <string name="loses">Verlorene Spiele:</string>
-    <string name="tie">Unentschieden:</string>
-    <string name="credits_won">Gewonnene Credits:</string>
-    <string name="credits_lost">Verlorene Credits:</string>
-    <string name="blackjacks">Blackjacks:</string>
-    <string name="busted_count">Busted:</string>
-    <string name="biggest_win">Größter Gewinn:</string>
-    <string name="reset_everything">Alles zurücksetzen</string>
-    <string name="winrate">Gewinnrate:</string>
+    <string name="wins">Won games :</string>
+    <string name="loses">Lost games :</string>
+    <string name="tie">Tied games :</string>
+    <string name="credits_won">Total won credits :</string>
+    <string name="credits_lost">Total lost credits :</string>
+    <string name="blackjacks">Blackjacks :</string>
+    <string name="busted_count">Busted :</string>
+    <string name="biggest_win">Biggest Win :</string>
+    <string name="reset_everything">Reset stats?</string>
+    <string name="winrate">Winrate :</string>
 </resources>
 

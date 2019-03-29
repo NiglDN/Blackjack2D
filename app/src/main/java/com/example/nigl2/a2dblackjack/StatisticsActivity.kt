@@ -27,14 +27,14 @@ class StatisticsActivity : AppCompatActivity() {
 
         button_stats_reset.setOnClickListener {
             val builder = AlertDialog.Builder(this)
-            builder.setTitle("Zurücksetzen?")
-            builder.setMessage("Willst du alles zurücksetzen? (Du fängst wieder mit 5000 Credits an)")
+            builder.setTitle("Reset stats?")
+            builder.setMessage("Would you like to reset all statistics? (You start with 5000 Credits again)")
             builder.setPositiveButton("OK"){dialog, which ->
                 resetStats()
                 loadStats()
-                Toast.makeText(applicationContext,"Alles zurückgesetzt",Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext,"Reset everything successfully!",Toast.LENGTH_SHORT).show()
             }
-            builder.setNeutralButton("Abbrechen"){dialog, which ->
+            builder.setNeutralButton("Abort"){dialog, which ->
             }
             builder.setCancelable(false)
             val dialog: AlertDialog = builder.create()
@@ -83,7 +83,7 @@ class StatisticsActivity : AppCompatActivity() {
             chart.setDragDecelerationFrictionCoef(0.95f);
 
         if ((wins + loses + ties) == 0){
-            chart.centerText = "Keine Spiele Vorhanden"
+            chart.centerText = "No games played!"
             chart.setTransparentCircleAlpha(0)
             chart.setCenterTextColor(Color.WHITE)
             chart.setCenterTextSize(16f)
