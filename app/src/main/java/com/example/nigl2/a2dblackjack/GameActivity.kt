@@ -44,6 +44,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
     override fun onRewardedVideoCompleted() {
         val myPreference = MyPreference(this)
+        myPreference.setCreditsWon(myPreference.getCreditsLost() + 1000)
         myPreference.setCredits(myPreference.getCredits() + 1000)
         Log.i("GameActivity","reward incoming video completed")
         Toast.makeText(this, "1000 Credits gutgeschrieben", Toast.LENGTH_SHORT).show()
@@ -586,8 +587,8 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                 if (mRewardedVideoAd.isLoaded) {
                     mRewardedVideoAd.show()
                 } else {
-                    val myPreference = MyPreference(this)
-                    myPreference.setCredits(myPreference.getCredits() + 500)
+
+
                     Toast.makeText(this, "No ad available", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -689,15 +690,16 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
             Handler().postDelayed({
                 var difwin = betTotal
-                myPreference.setCreditsWon(myPreference.getCreditsWon() + difwin)
+
                 betTotal = (betTotal * multiply).toInt()
                 credit += betTotal
                 myPreference.setCredits(credit)
+                myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal - difwin)
                 myPreference.setWinCount(myPreference.getWinCount() + 1)
-                if (myPreference.getMostCredits() < difwin)
-                    myPreference.setMostCredits(difwin)
+                if (myPreference.getMostCredits() < (betTotal-difwin))
+                    myPreference.setMostCredits((betTotal-difwin))
 
-                Toast.makeText(applicationContext,"You won" +betTotal +" $",Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext,"You win " +(betTotal-difwin) +" $",Toast.LENGTH_SHORT).show()
                 resetField()
             },2000)
         }
@@ -737,12 +739,15 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             Handler().postDelayed({
 
                 myPreference.setLoseCount(myPreference.getLoseCount() + 1)
-                myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal)
+
                 if (dealerScore == 21 && dealerCardScore.size == 2 && dealerCardScore[0] == 11 && insurancemoney > 0){
                     credit += (insurancemoney * 3)
+                    myPreference.setCreditsLost(myPreference.getCreditsLost() - (insurancemoney*3))
                     Toast.makeText(applicationContext,"Loss is 0 because of insurance",Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(applicationContext,"You lose $betTotal $",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext,"You lose "+(insurancemoney+betTotal) +" $",Toast.LENGTH_SHORT).show()
+                    myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal + insurancemoney)
+
                 }
                 myPreference.setCredits(credit)
                 resetField()
@@ -779,15 +784,13 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             val myPreference = MyPreference(this)
             textView_playerfield_loseWinCondition.text = "Tie"
             textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
-            if(insurancemoney>0) {
-                credit -= insurancemoney
-                myPreference.setCredits(credit)
-            }
+
             Handler().postDelayed({
 
+                myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
+                myPreference.setCredits(credit-insurancemoney+betTotal)
                 myPreference.setTieCount(myPreference.getTieCount() + 1)
-
-                Toast.makeText(applicationContext, "You get your betting stake back", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Sie bekommen Ihren Einsatz zurück", Toast.LENGTH_SHORT).show()
                 resetField()
             },2000)
         }
