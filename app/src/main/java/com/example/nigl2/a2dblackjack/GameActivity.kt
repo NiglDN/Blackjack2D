@@ -770,6 +770,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
 
         val myPreference = MyPreference(this)
+        myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
         if (splitMode){
             if (leftMode){
                 textView_playerfield_loseWinCondition.text = "Left Hand wins"
