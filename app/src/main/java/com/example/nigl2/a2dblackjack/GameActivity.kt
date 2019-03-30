@@ -838,7 +838,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         button_playfield_next.isClickable = false
         button_playfield_doubled.isClickable = false
         val myPreference = MyPreference(this)
-        myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
+
         if (splitMode){
             if (leftMode){
                 textView_playerfield_loseWinCondition.text = "Left hand loses"
@@ -872,11 +872,12 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
                 if (dealerScore == 21 && dealerCardScore.size == 2 && dealerCardScore[0] == 11 && insurancemoney > 0){
                     credit += (insurancemoney * 3)
+
                     myPreference.setCreditsLost(myPreference.getCreditsLost() - (insurancemoney*3))
                     Toast.makeText(applicationContext,"Loss is 0 because of insurance",Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(applicationContext,"You lose "+(insurancemoney+betTotal) +" $",Toast.LENGTH_SHORT).show()
-
+                    myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
 
                 }
                 myPreference.setCredits(credit)
