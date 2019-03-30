@@ -26,6 +26,8 @@ android {
     }
 }
 
+
+
 repositories {
     maven { url 'https://jitpack.io' }
 
@@ -47,4 +49,7 @@ dependencies {
 
     //video ads
     implementation 'com.google.android.gms:play-services-ads:17.2.0'
+
+    //doxygen
+
 }

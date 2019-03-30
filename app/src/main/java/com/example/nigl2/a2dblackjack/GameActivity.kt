@@ -772,7 +772,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         val myPreference = MyPreference(this)
         if (splitMode){
             if (leftMode){
-                textView_playerfield_loseWinCondition.text = "Left hand wins"
+                textView_playerfield_loseWinCondition.text = "Left Hand wins"
                 textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
                 Handler().postDelayed({
                     myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal)
@@ -782,7 +782,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                     if (myPreference.getMostCredits() > betTotal*2)
                         myPreference.setMostCredits(betTotal*2)
 
-                    Toast.makeText(applicationContext,"You win (left hand)" + (betTotal* factor).toInt() + " $",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext,"(Left Hand) You win " + (betTotal* factor).toInt() + " $",Toast.LENGTH_SHORT).show()
                     leftMode = false
                     checkLoseCondition(splitScoreRight,splitRight)
                 },2000)
@@ -798,7 +798,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                     if (myPreference.getMostCredits() < betTotal*2)
                         myPreference.setMostCredits(betTotal*2)
 
-                    Toast.makeText(applicationContext,"You win (right hand) " + (betTotal * factor).toInt() + " $",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext,"(Right Hand) You win " + (betTotal * factor).toInt() + " $",Toast.LENGTH_SHORT).show()
                     resetField()
                 },2000)
             }
@@ -892,22 +892,26 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
         button_playfield_doubled.isClickable = false
         if (splitMode){
             if(leftMode){
-                textView_playerfield_loseWinCondition.text = "Left hand ties"
+                textView_playerfield_loseWinCondition.text = "Left Hand ties"
                 textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
                 Handler().postDelayed({
                     val myPreference = MyPreference(this)
                     myPreference.setTieCount(myPreference.getTieCount() + 1)
-                    Toast.makeText(applicationContext, "You get your betting stake back", Toast.LENGTH_SHORT).show()
+                    credit+=betTotal
+                    myPreference.setCredits(credit)
+                    Toast.makeText(applicationContext, "(Left Hand) You get your betting stake back", Toast.LENGTH_SHORT).show()
                     leftMode = false
                     checkLoseCondition(splitScoreRight,splitRight)
                 },2000)
             } else {
-                textView_playerfield_loseWinCondition.text = "Right hand ties"
+                textView_playerfield_loseWinCondition.text = "Right Hand ties"
                 textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
                 Handler().postDelayed({
                     val myPreference = MyPreference(this)
                     myPreference.setTieCount(myPreference.getTieCount() + 1)
-                    Toast.makeText(applicationContext, "You get your betting stake back", Toast.LENGTH_SHORT).show()
+                    credit+=betTotal
+                    myPreference.setCredits(credit)
+                    Toast.makeText(applicationContext, "(Right Hand) You get your betting stake back", Toast.LENGTH_SHORT).show()
                     resetField()
                 },2000)
             }
@@ -921,7 +925,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                 myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
                 myPreference.setCredits(credit+betTotal)
                 myPreference.setTieCount(myPreference.getTieCount() + 1)
-                Toast.makeText(applicationContext, "Sie bekommen Ihren Einsatz zurück", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "you get your betting stake back", Toast.LENGTH_SHORT).show()
                 resetField()
             },2000)
         }
