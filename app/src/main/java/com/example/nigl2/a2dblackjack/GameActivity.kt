@@ -750,7 +750,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             playerLoses()
         else if (dealerScore == 21 && dealerCardScore.size == 2 && list.size == 2 && dealerScore == score)
             playerTie()
-        else if (dealerScore == 21 && dealerCardScore.size > 2 && dealerScore == score)
+        else if (dealerScore == 21 && dealerCardScore.size > 2 && playerCardScore.size > 2 && dealerScore == score)
             playerWins(2.0)
         else if(score == dealerScore)
             playerTie()
