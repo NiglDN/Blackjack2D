@@ -770,7 +770,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
 
         val myPreference = MyPreference(this)
-        myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
+       
         if (splitMode){
             if (leftMode){
                 textView_playerfield_loseWinCondition.text = "Left Hand wins"
@@ -847,6 +847,10 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                     myPreference.setCredits(credit)
                     myPreference.setLoseCount(myPreference.getLoseCount() + 1)
                     myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal)
+                    if (!(dealerScore == 21 && dealerCardScore.size == 2 && dealerCardScore[0] == 11)) {
+                        myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
+                    }
+
                     Toast.makeText(applicationContext,"You lose (left hand) $betTotal $",Toast.LENGTH_SHORT).show()
                     leftMode = false
                     checkLoseCondition(splitScoreRight,splitRight)
@@ -858,6 +862,10 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                     myPreference.setCredits(credit)
                     myPreference.setLoseCount(myPreference.getLoseCount() + 1)
                     myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal)
+                    if (!(dealerScore == 21 && dealerCardScore.size == 2 && dealerCardScore[0] == 11)) {
+                        myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
+                    }
+
                     Toast.makeText(applicationContext,"You lose (right hand) $betTotal $",Toast.LENGTH_SHORT).show()
                     resetField()
                 },2000)
@@ -869,6 +877,10 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
                 myPreference.setLoseCount(myPreference.getLoseCount() + 1)
                 myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal + insurancemoney)
+                if (!(dealerScore == 21 && dealerCardScore.size == 2 && dealerCardScore[0] == 11)) {
+                    myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
+                }
+
 
                 if (dealerScore == 21 && dealerCardScore.size == 2 && dealerCardScore[0] == 11 && insurancemoney > 0){
                     credit += (insurancemoney * 3)
@@ -877,7 +889,6 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                     Toast.makeText(applicationContext,"Loss is 0 because of insurance",Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(applicationContext,"You lose "+(insurancemoney+betTotal) +" $",Toast.LENGTH_SHORT).show()
-                    myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
 
                 }
                 myPreference.setCredits(credit)
