@@ -770,14 +770,14 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
 
         val myPreference = MyPreference(this)
-       
+
         if (splitMode){
             if (leftMode){
                 textView_playerfield_loseWinCondition.text = "Left Hand wins"
                 textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
                 Handler().postDelayed({
-                    myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal)
-                    credit += (betTotal * multiply).toInt()
+                    myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal-insurancemoney)
+                    credit += ((betTotal-insurancemoney) * multiply).toInt()
                     myPreference.setCredits(credit)
                     myPreference.setWinCount(myPreference.getWinCount() + 1)
                     if (myPreference.getMostCredits() > betTotal*2)
@@ -792,8 +792,8 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                 textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
                 Handler().postDelayed({
 
-                    myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal)
-                    credit += (betTotal  * multiply).toInt()
+                    myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal-insurancemoney)
+                    credit += ((betTotal-insurancemoney)  * multiply).toInt()
                     myPreference.setCredits(credit)
                     myPreference.setWinCount(myPreference.getWinCount() + 1)
                     if (myPreference.getMostCredits() < betTotal*2)
@@ -814,10 +814,11 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             }}, 500)
             textView_playerfield_loseWinCondition.startAnimation(AnimationUtils.loadAnimation(this, R.anim.abc_fade_in))
             Handler().postDelayed({
-                var difwin = betTotal
+                var difwin = betTotal-insurancemoney
 
-                betTotal = (betTotal * multiply).toInt()
+                betTotal = ((betTotal-insurancemoney) * multiply).toInt()
                 credit += betTotal
+                credit -=insurancemoney
                 myPreference.setCredits(credit)
                 myPreference.setCreditsWon(myPreference.getCreditsWon() + betTotal - difwin)
                 myPreference.setWinCount(myPreference.getWinCount() + 1)
@@ -862,9 +863,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                     myPreference.setCredits(credit)
                     myPreference.setLoseCount(myPreference.getLoseCount() + 1)
                     myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal)
-                    if (!(dealerScore == 21 && dealerCardScore.size == 2 && dealerCardScore[0] == 11)) {
-                        myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
-                    }
+
 
                     Toast.makeText(applicationContext,"You lose (right hand) $betTotal $",Toast.LENGTH_SHORT).show()
                     resetField()
@@ -877,9 +876,6 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
 
                 myPreference.setLoseCount(myPreference.getLoseCount() + 1)
                 myPreference.setCreditsLost(myPreference.getCreditsLost() + betTotal + insurancemoney)
-                if (!(dealerScore == 21 && dealerCardScore.size == 2 && dealerCardScore[0] == 11)) {
-                    myPreference.setCreditsLost(myPreference.getCreditsLost() + insurancemoney)
-                }
 
 
                 if (dealerScore == 21 && dealerCardScore.size == 2 && dealerCardScore[0] == 11 && insurancemoney > 0){
