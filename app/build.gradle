@@ -1,9 +1,7 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
-
+apply plugin: 'org.jetbrains.dokka'
 android {
     packagingOptions {
         exclude 'META-INF/proguard/androidx-annotations.pro'
@@ -26,10 +24,21 @@ android {
     }
 }
 
+// dokka
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.18"
+    }
+}
 
 
 repositories {
     maven { url 'https://jitpack.io' }
+    maven { url 'https://dl.bintray.com/kotlin/dokka' }
 
 }
 
@@ -49,7 +58,9 @@ dependencies {
 
     //video ads
     implementation 'com.google.android.gms:play-services-ads:17.2.0'
+}
 
-    //doxygen
-
+dokka {
+    outputFormat = 'html'
+    outputDirectory = "$buildDir/javadoc"
 }
