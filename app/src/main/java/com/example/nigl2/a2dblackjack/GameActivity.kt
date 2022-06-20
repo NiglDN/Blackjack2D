@@ -3,16 +3,15 @@ package com.example.nigl2.a2dblackjack
 import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
-import android.opengl.Visibility
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.reward.RewardItem
@@ -251,7 +250,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             image.setOnClickListener(){
                 dialog.dismiss()
             }
-            dialog.window.setBackgroundDrawableResource(R.drawable.dialog_basicstrat)
+            dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_basicstrat)
             dialog.setView(image)
             dialog.setCanceledOnTouchOutside(true)
             dialog.show()
@@ -280,7 +279,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
                 val dialog: AlertDialog = builder.create()
                 dialog.setOnShowListener {
                 }
-                dialog.window.setBackgroundDrawableResource(R.drawable.dialog_bg)
+                dialog.window!!.setBackgroundDrawableResource(R.drawable.dialog_bg)
                 dialog.show()
             }
             if (betTotal == 0)
@@ -714,7 +713,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             builder.setNegativeButton("No"){dialog, which -> }
             builder.setCancelable(false)
             val dialog: AlertDialog = builder.create()
-            dialog.window.setBackgroundDrawableResource(R.drawable.dialog_bg)
+            dialog.window!!.setBackgroundDrawableResource(R.drawable.dialog_bg)
             dialog.show()
         }
     }
@@ -974,7 +973,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             }
             builder.setCancelable(false)
             val dialog: AlertDialog = builder.create()
-            dialog.window.setBackgroundDrawableResource(R.drawable.dialog_bg)
+            dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_bg)
             dialog.show()
             myPreference.setBlackJackCount(myPreference.getBlackJackCount() + 1)
         }
@@ -994,7 +993,7 @@ class GameActivity : AppCompatActivity(), RewardedVideoAdListener {
             }
             builder.setCancelable(false)
             val dialog: AlertDialog = builder.create()
-            dialog.window.setBackgroundDrawableResource(R.drawable.dialog_bg)
+            dialog.window!!.setBackgroundDrawableResource(R.drawable.dialog_bg)
             dialog.show()
         }
     }

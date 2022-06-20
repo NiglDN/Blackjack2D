@@ -1,19 +1,13 @@
 package com.example.nigl2.a2dblackjack
 
 import android.graphics.Color
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
-import android.view.View
 import android.widget.Toast
-import com.github.mikephil.charting.components.Legend
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.PercentFormatter
-import com.github.mikephil.charting.interfaces.datasets.IPieDataSet
-import com.github.mikephil.charting.renderer.LegendRenderer
 import kotlinx.android.synthetic.main.activity_statistics.*
-import java.math.RoundingMode
-import java.text.DecimalFormat
 
 /**
  * Class which displays piechart and detailed statistics of players current session
@@ -46,7 +40,7 @@ class StatisticsActivity : AppCompatActivity() {
             }
             builder.setCancelable(false)
             val dialog: AlertDialog = builder.create()
-            dialog.window.setBackgroundDrawableResource(R.drawable.dialog_bg)
+            dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_bg)
             dialog.show()
         }
     }
