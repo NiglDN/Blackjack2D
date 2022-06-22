@@ -32,7 +32,7 @@ jobs:
     
     - name: "Add build scan URL as PR comment"
       uses: actions/github-script@v5
-      if: github.event_name == 'commit'
+      if: github.event_name == 'pull_request'
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
