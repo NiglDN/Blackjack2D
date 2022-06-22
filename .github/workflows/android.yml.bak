@@ -17,11 +17,15 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
-
-    - uses: gradle/gradle-build-action@v2
-        with:
-          arguments: build --scan
     - uses: gradle/wrapper-validation-action@v1
+    - name: Setup Gradle
+      uses: gradle/gradle-build-action@v2
+      
+    - name: Run build with Gradle wrapper
+      id: gradle
+      run: ./gradlew build --scan  
+     
+    
     - name: Upload build reports
       uses: actions/upload-artifact@v3
       with:
