@@ -22,6 +22,9 @@ jobs:
     
     - name: Setup Gradle
       uses: gradle/gradle-build-action@v2
+      arguments: |
+          build
+          --scan
     
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -29,17 +32,10 @@ jobs:
     - name: Run build with Gradle wrapper
       id: gradle
       run: ./gradlew build --scan  
-     
-    
-    - name: Upload build reports
-      uses: actions/upload-artifact@v3
-      with:
-        name: build-reports
-        path: build/reports/
     
     - name: "Add build scan URL as PR comment"
       uses: actions/github-script@v5
-      if: github.event_name == 'pull_request' && failure()
+      if: github.event_name == 'commit'
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
@@ -47,5 +43,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: '❌ ${{ github.workflow }} failed: ${{ steps.gradle.outputs.build-scan-url }}'
+            body: '${{ github.workflow }}: ${{ steps.gradle.outputs.build-scan-url }}'
           })
