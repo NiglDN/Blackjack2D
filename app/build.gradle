@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'org.jetbrains.dokka'
+
 android {
     packagingOptions {
         exclude 'META-INF/proguard/androidx-annotations.pro'
@@ -23,9 +24,6 @@ android {
 
     }
 }
-
-// dokka
-
 buildscript {
     repositories {
         jcenter()
@@ -34,7 +32,6 @@ buildscript {
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.18"
     }
 }
-
 
 repositories {
     maven { url 'https://jitpack.io' }
